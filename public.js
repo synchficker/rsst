@@ -1,9 +1,12 @@
 /* ========================================
    SIMRS - Halaman Publik (v2)
    File: public.js
-   - Membaca data CMS dari localStorage SIMRS (key: simrs_db4) - READ ONLY
-   - Form pendaftaran/kontak menulis ke "inbox" terpisah (simrs_inbox, simrs_pesan)
-     sehingga TIDAK PERNAH menimpa database admin.
+   Sumber data (berurutan):
+   1. ?preview=1  -> draft CMS di localStorage browser admin (pratinjau sebelum terbit)
+   2. data/site.json (hasil "Publikasikan" dari panel admin) -> yang dilihat pengunjung di GitHub Pages
+   3. localStorage (mode lokal / file:// untuk uji coba)
+   Form pendaftaran/kontak: WhatsApp, endpoint formulir (mis. Formspree), atau inbox lokal (demo).
+   Tidak pernah menulis ke database admin.
    ======================================== */
 (function () {
   'use strict';
@@ -13,6 +16,9 @@
   const INBOX_KEY = 'simrs_inbox';
   const MSG_KEY = 'simrs_pesan';
   const MAX_ITEMS = 300;
+  const CFG = Object.assign({ dataPath: 'data/site.json' }, window.SIMRS_CONFIG || {});
+  let SOURCE = 'local';      // 'published' | 'draft' | 'local'
+  let PUBDB = null;
 
   const DEFAULT_CMS = {
     nama: 'RS Sehat Sentosa', tagline: 'Melayani dengan Hati',
@@ -30,7 +36,8 @@
     logo: '', favicon: '', nav_bottom_title: 'Link Cepat',
     mengapa_judul: 'Mengapa Memilih Kami?',
     kebijakan_judul: 'Kebijakan Privasi', kebijakan_isi: '', kebijakan_update: '', kebijakan_aktif: true,
-    syarat_judul: 'Syarat & Ketentuan', syarat_isi: '', syarat_update: '', syarat_aktif: true
+    syarat_judul: 'Syarat & Ketentuan', syarat_isi: '', syarat_update: '', syarat_aktif: true,
+    form_mode: 'auto', form_endpoint: ''
   };
 
   // Data contoh bila admin SIMRS belum pernah dibuka
@@ -726,7 +733,7 @@
 
   // ===== RENDER UTAMA =====
   function render() {
-    const raw = readDb();
+    const raw = SOURCE === 'published' ? PUBDB : readDb();
     DB = raw || {};
     const cms = Object.assign({}, DEFAULT_CMS, raw && raw.cms && typeof raw.cms === 'object' ? raw.cms : {});
 
@@ -845,6 +852,27 @@
     setTimeout(() => { b.disabled = false; }, ms);
   }
 
+  // Cara pengiriman formulir. 'auto': website terbit (GitHub Pages) -> WhatsApp; mode lokal/uji -> inbox lokal.
+  function formMode() {
+    const m = String(CMS_NOW.form_mode || 'auto');
+    if (m !== 'auto') return m;
+    return SOURCE === 'published' ? 'whatsapp' : 'lokal';
+  }
+  function openWhatsApp(text) {
+    const wa = digits(CMS_NOW.whatsapp);
+    if (!wa) return false;
+    const url = `https://wa.me/${wa}?text=${encodeURIComponent(text)}`;
+    const w = window.open(url, '_blank', 'noopener');
+    if (!w) location.href = url;
+    return true;
+  }
+  async function postEndpoint(data) {
+    const ep = String(CMS_NOW.form_endpoint || '').trim();
+    if (!/^https:\/\//i.test(ep)) throw new Error('Alamat endpoint formulir belum diatur dengan benar.');
+    const r = await fetch(ep, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
+    if (!r.ok) throw new Error('Server formulir menolak permintaan (HTTP ' + r.status + ').');
+  }
+
   function setupForms() {
     const ap = $('#appointmentForm');
     if (ap) {
@@ -852,7 +880,7 @@
       if (tgl) tgl.min = todayStr();
       $('#ap-poli').addEventListener('change', () => fillDokterOptions(''));
 
-      ap.addEventListener('submit', e => {
+      ap.addEventListener('submit', async e => {
         e.preventDefault();
         if (ap.elements.website && ap.elements.website.value) return; // honeypot
         const f = ap.elements;
@@ -866,29 +894,42 @@
         if (errs.length) return;
 
         const polOpt = f.poli.options[f.poli.selectedIndex], dokOpt = f.dokter.options[f.dokter.selectedIndex];
+        const poliTxt = polOpt ? polOpt.textContent : '', dokTxt = f.dokter.value && dokOpt ? dokOpt.textContent.replace(/\s*\(.*\)$/, '') : '';
+        const keluhan = f.keluhan.value.trim(), mode = formMode();
+        const done = () => { ap.reset(); fillDokterOptions(''); if (tgl) tgl.min = todayStr(); };
         try {
-          const it = pushList(INBOX_KEY, {
-            kode: '', nama, telp, poliId: +f.poli.value || 0, poli: polOpt ? polOpt.textContent : '',
-            dokterId: +f.dokter.value || 0, dokter: f.dokter.value && dokOpt ? dokOpt.textContent.replace(/\s*\(.*\)$/, '') : '',
-            tgl: f.tgl.value, keluhan: f.keluhan.value.trim(), status: 'Baru', dibuat: new Date().toISOString()
-          });
-          // beri kode booking yang mudah dibaca
-          const list = readJson(INBOX_KEY, []);
-          const row = list.find(x => x.id === it.id);
-          if (row) { row.kode = 'JNJ-' + f.tgl.value.replace(/-/g, '').slice(2) + '-' + String(it.id).padStart(3, '0'); localStorage.setItem(INBOX_KEY, JSON.stringify(list)); it.kode = row.kode; }
-          busy(ap);
-          ap.reset(); fillDokterOptions('');
-          if (tgl) tgl.min = todayStr();
-          toast(`Pendaftaran terkirim! Kode booking Anda: ${it.kode}. Petugas kami akan mengonfirmasi jadwal melalui telepon/WhatsApp.`, 9000);
+          if (mode === 'whatsapp') {
+            const text = [`Halo ${CMS_NOW.nama}, saya ingin mendaftar kunjungan.`, `Nama: ${nama}`, `Telepon: ${telp}`, `Poli: ${poliTxt}`,
+              dokTxt ? `Dokter: ${dokTxt}` : '', `Tanggal kunjungan: ${formatDate(f.tgl.value)}`, keluhan ? `Keluhan: ${keluhan}` : ''].filter(Boolean).join('\n');
+            if (!openWhatsApp(text)) throw new Error('Nomor WhatsApp rumah sakit belum diatur. Silakan hubungi kami via telepon.');
+            busy(ap); done();
+            toast('Membuka WhatsApp... Kirim pesan yang sudah terisi untuk menyelesaikan pendaftaran Anda.', 9000);
+          } else if (mode === 'endpoint') {
+            busy(ap, 4000);
+            await postEndpoint({ jenis: 'pendaftaran', rumah_sakit: CMS_NOW.nama, nama, telepon: telp, poli: poliTxt, dokter: dokTxt, tanggal: f.tgl.value, keluhan });
+            done();
+            toast('Pendaftaran terkirim! Petugas kami akan mengonfirmasi jadwal melalui telepon/WhatsApp.', 9000);
+          } else {
+            const it = pushList(INBOX_KEY, {
+              kode: '', nama, telp, poliId: +f.poli.value || 0, poli: poliTxt,
+              dokterId: +f.dokter.value || 0, dokter: dokTxt,
+              tgl: f.tgl.value, keluhan, status: 'Baru', dibuat: new Date().toISOString()
+            });
+            const list = readJson(INBOX_KEY, []);
+            const row = list.find(x => x.id === it.id);
+            if (row) { row.kode = 'JNJ-' + f.tgl.value.replace(/-/g, '').slice(2) + '-' + String(it.id).padStart(3, '0'); localStorage.setItem(INBOX_KEY, JSON.stringify(list)); it.kode = row.kode; }
+            busy(ap); done();
+            toast(`Pendaftaran terkirim! Kode booking Anda: ${it.kode}. Petugas kami akan mengonfirmasi jadwal melalui telepon/WhatsApp.`, 9000);
+          }
         } catch (err) {
-          showErr('ap-error', ['Pendaftaran gagal disimpan. Silakan hubungi kami via telepon atau WhatsApp.']);
+          showErr('ap-error', [err && err.message ? err.message : 'Pendaftaran gagal dikirim. Silakan hubungi kami via telepon atau WhatsApp.']);
         }
       });
     }
 
     const ct = $('#contactForm');
     if (ct) {
-      ct.addEventListener('submit', e => {
+      ct.addEventListener('submit', async e => {
         e.preventDefault();
         const f = ct.elements;
         if (f.website && f.website.value) return;
@@ -900,13 +941,25 @@
         if (pesan.length < 10) errs.push('Pesan minimal 10 karakter.');
         showErr('ct-error', errs);
         if (errs.length) return;
+        const mode = formMode();
         try {
-          pushList(MSG_KEY, { nama, email, subjek, pesan, dibuat: new Date().toISOString(), dibaca: false });
-          busy(ct);
-          ct.reset();
-          toast('Terima kasih! Pesan Anda telah kami terima dan akan segera ditindaklanjuti.');
+          if (mode === 'whatsapp') {
+            const text = [`Halo ${CMS_NOW.nama},`, `Subjek: ${subjek}`, '', pesan, '', `Dari: ${nama} (${email})`].join('\n');
+            if (!openWhatsApp(text)) throw new Error('Nomor WhatsApp rumah sakit belum diatur. Silakan hubungi kami via telepon atau email.');
+            busy(ct); ct.reset();
+            toast('Membuka WhatsApp... Kirim pesan yang sudah terisi agar sampai ke kami.');
+          } else if (mode === 'endpoint') {
+            busy(ct, 4000);
+            await postEndpoint({ jenis: 'pesan', rumah_sakit: CMS_NOW.nama, nama, email, subjek, pesan });
+            ct.reset();
+            toast('Terima kasih! Pesan Anda telah kami terima dan akan segera ditindaklanjuti.');
+          } else {
+            pushList(MSG_KEY, { nama, email, subjek, pesan, dibuat: new Date().toISOString(), dibaca: false });
+            busy(ct); ct.reset();
+            toast('Terima kasih! Pesan Anda telah kami terima dan akan segera ditindaklanjuti.');
+          }
         } catch (err) {
-          showErr('ct-error', ['Pesan gagal dikirim. Silakan hubungi kami via telepon atau WhatsApp.']);
+          showErr('ct-error', [err && err.message ? err.message : 'Pesan gagal dikirim. Silakan hubungi kami via telepon atau WhatsApp.']);
         }
       });
     }
@@ -954,17 +1007,39 @@
     if (tg) tg.addEventListener('click', () => { docState.all = !docState.all; renderDokter(); if (!docState.all) $('#dokter').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); });
 
     // Perubahan dari panel admin (tab lain) langsung tampil
-    window.addEventListener('storage', e => { if (e.key === SIMRS_KEY || e.key === null) render(); });
+    window.addEventListener('storage', e => { if (SOURCE !== 'published' && (e.key === SIMRS_KEY || e.key === null)) render(); });
+  }
+
+  // ===== SUMBER DATA =====
+  async function loadSource() {
+    if (new URLSearchParams(location.search).has('preview')) {
+      SOURCE = 'draft';
+      const b = document.createElement('div');
+      b.setAttribute('role', 'status');
+      b.className = 'fixed bottom-4 left-4 z-[80] max-w-xs rounded-xl bg-amber-500 text-white text-xs px-4 py-3 shadow-2xl';
+      b.innerHTML = '<b>Pratinjau draft</b> - menampilkan data CMS di browser ini. Belum tentu sudah diterbitkan. <a class="underline font-semibold" href="' + esc(location.pathname) + '">Lihat versi terbit</a>';
+      document.body.appendChild(b);
+      return;
+    }
+    try {
+      const r = await fetch(CFG.dataPath + '?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' });
+      if (r.ok) {
+        const j = await r.json();
+        if (j && typeof j === 'object' && j.cms) { PUBDB = j; SOURCE = 'published'; }
+      }
+    } catch (e) { /* file:// atau belum ada data terbit -> pakai data lokal */ }
   }
 
   // ===== INISIALISASI =====
-  function init() {
+  async function init() {
     Hero.bind();
     Hero.refresh({ autoplay: true, interval: 5000 }); // slide bawaan
     setupMenu(); setupScroll(); setupForms(); setupEvents();
+    try { await loadSource(); } catch (e) { /* abaikan */ }
     render();
     handleHash();
-    console.log('SIMRS Public Page v2 siap. Data CMS dibaca dari localStorage (' + SIMRS_KEY + ').');
+    document.documentElement.classList.remove('js-loading');
+    console.log('Website siap. Sumber data: ' + SOURCE);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

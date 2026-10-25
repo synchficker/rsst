@@ -123,9 +123,9 @@ const MENU = [
   ['Pelayanan Klinis', ['pasien', 'pendaftaran', 'rme', 'igd', 'rawat_inap', 'kamar', 'lab', 'radiologi', 'obat', 'resep']],
   ['Administrasi & Keuangan', ['tagihan', 'klaim', 'jurnal', 'payroll']],
   ['Manajemen', ['aset', 'pegawai', 'dokter', 'poli']],
-  ['Sistem', ['laporan', 'cms', 'inbox', 'users']]
+  ['Sistem', ['laporan', 'cms', 'publish', 'inbox', 'users']]
 ];
-const TITLE = { dash: 'Dashboard', laporan: 'Laporan & SIRS', cms: 'CMS Rumah Sakit', inbox: 'Inbox Website' };
+const TITLE = { dash: 'Dashboard', laporan: 'Laporan & SIRS', cms: 'CMS Rumah Sakit', publish: 'Publikasi GitHub', inbox: 'Inbox Website' };
 const navLabel = x => {
   const t = (S[x] || {}).t || TITLE[x];
   if (x != 'inbox') return t;
@@ -194,6 +194,10 @@ function seed() {
 
       // Bagian "Mengapa Memilih Kami?"
       mengapa_judul: 'Mengapa Memilih Kami?',
+
+      // Pengiriman formulir website: auto | whatsapp | endpoint | lokal
+      form_mode: 'auto',
+      form_endpoint: '',
 
       // Kebijakan Privasi & Syarat Ketentuan (modal di website)
       kebijakan_judul: 'Kebijakan Privasi', kebijakan_aktif: true, kebijakan_update: new Date().toISOString().slice(0, 10), kebijakan_isi: LEGAL_PRIVASI,
@@ -361,7 +365,7 @@ const HERO_TONE_IDS = ['blue', 'red', 'emerald', 'indigo'];
 // (mis. yang pernah ditulis halaman publik versi lama) tidak lagi membuat panel admin error.
 function applyFavicon() {
   const u = String((db.cms || {}).favicon || '').trim();
-  const ok = /^(https?:\/\/|\/|\.\/|\.\.\/|data:image\/)/i.test(u);
+  const ok = !!u && (/^(https?:\/\/|data:image\/)/i.test(u) || !/^[a-z][a-z0-9+.-]*:/i.test(u));
   let l = document.querySelector('link[rel~="icon"]');
   if (!l) { if (!ok) return; l = document.createElement('link'); l.rel = 'icon'; document.head.appendChild(l) }
   if (ok) { l.href = u; l.removeAttribute('type') } else l.removeAttribute('href')
@@ -422,7 +426,7 @@ const badge = v => BC[v] ? `<span class="px-2 py-0.5 rounded-full text-xs font-m
 const card = 'bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700';
 const inp = 'w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-900 rounded-lg px-3 py-2';
 const btn = (c = 'blue') => `bg-${c}-600 hover:bg-${c}-700 text-white rounded-lg px-3 py-2 font-medium cursor-pointer`;
-const authed = () => sessionStorage.getItem('simrs_auth') == '1';
+const authed = () => sessionStorage.getItem('simrs_auth') == '1' && (!GH_ON || !!ghTok());
 
 // ===== PRINT TRANSACTION FUNCTION =====
 function printTransaction(type, id) {
@@ -556,7 +560,15 @@ ${body}
 // ===== AUTH FUNCTIONS =====
 function login() {
   const c = db.cms;
-  $('#app').innerHTML = `<div class="h-full grid place-items-center p-4"><form onsubmit="return doLogin(event)" class="${card} p-8 w-full max-w-sm space-y-4"><div class="text-center"><div class="text-4xl">🏥</div><h1 class="text-xl font-bold mt-1">${esc(c.nama)}</h1><p class="text-slate-500">${esc(c.tagline)}</p></div><input id="lu" class="${inp}" placeholder="Username" value="admin"><input id="lp" type="password" class="${inp}" placeholder="Password"><p id="le" class="text-red-600 text-xs hidden">Username atau password salah.</p><button class="${btn()} w-full">Masuk</button><p class="text-xs text-slate-400 text-center">Demo: Hubungi Sin.Can di <a href="https://wa.me/628989921788?text=Halo%20Sin.Can%2C%20mau%20minta%20Username%20%26%20Password%20buat%20RSST%20nya%20dong..." target="_blank">WhatsApp</a></p></form></div>`
+  const head = `<div class="text-center"><div class="text-4xl">🏥</div><h1 class="text-xl font-bold mt-1">${esc(c.nama)}</h1><p class="text-slate-500">${GH_ON ? 'Panel Admin' : esc(c.tagline)}</p></div>`;
+  $('#app').innerHTML = GH_ON
+    ? `<div class="h-full grid place-items-center p-4"><form onsubmit="return doTokenLogin(event)" class="${card} p-8 w-full max-w-sm space-y-4" autocomplete="off">${head}
+      <label class="block"><span class="text-xs text-slate-500">GitHub Personal Access Token</span><input id="lt" type="password" class="${inp}" placeholder="github_pat_..." autocomplete="off" spellcheck="false"></label>
+      <p class="text-xs text-slate-500">Repositori: <b>${esc(GHCFG.owner)}/${esc(GHCFG.repo)}</b>. Hanya akun dengan akses <b>tulis</b> ke repositori ini yang dapat masuk. Token hanya disimpan di tab ini dan terhapus saat tab ditutup atau setelah 30 menit tanpa aktivitas.</p>
+      <p id="le" class="text-red-600 text-xs hidden" role="alert"></p>
+      <button id="lbtn" class="${btn()} w-full">Masuk dengan Token</button>
+      <p class="text-xs text-center"><a class="text-blue-600 underline" target="_blank" rel="noopener noreferrer" href="https://github.com/settings/personal-access-tokens/new">Buat token (fine-grained)</a></p></form></div>`
+    : `<div class="h-full grid place-items-center p-4"><form onsubmit="return doLogin(event)" class="${card} p-8 w-full max-w-sm space-y-4">${head}<input id="lu" class="${inp}" placeholder="Username" value="admin"><input id="lp" type="password" class="${inp}" placeholder="Password"><p id="le" class="text-red-600 text-xs hidden">Username atau password salah.</p><button class="${btn()} w-full">Masuk</button><p class="text-xs text-amber-600 text-center">Mode demo lokal: login ini TIDAK aman dan hanya untuk uji coba. Untuk hosting GitHub Pages, panel ini otomatis memakai login Token.</p><p class="text-xs text-slate-400 text-center">Demo: admin / admin123</p></form></div>`
 }
 
 let _fails = 0, _lock = 0;
@@ -579,8 +591,8 @@ function doLogin(e) {
 }
 
 function logout() {
-  sessionStorage.removeItem('simrs_auth');
-  sessionStorage.removeItem('simrs_user');
+  clearTimeout(_idle);
+  ['simrs_auth', 'simrs_user', 'simrs_gh_token', 'simrs_gh_branch'].forEach(k => sessionStorage.removeItem(k));
   login()
 }
 
@@ -588,8 +600,8 @@ function logout() {
 function shell() {
   const k = (location.hash || '#/dash').slice(2);
   const nav = MENU.map(([g, ks]) => `<div class="px-3 pt-4 pb-1 text-xs uppercase tracking-wide text-slate-400">${g}</div>` + ks.map(x => `<a href="#/${x}" class="block px-4 py-2 rounded-lg mx-2 ${k == x ? 'bg-blue-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}">${navLabel(x)}</a>`).join('')).join('');
-  $('#app').innerHTML = `<div class="h-full flex"><aside id="sb" class="hidden md:block w-64 shrink-0 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto pb-6"><div class="p-4 font-bold text-lg">${cmsSafeImg(db.cms.logo) ? `<img src="${esc(cmsSafeImg(db.cms.logo))}" alt="" class="inline-block h-7 w-7 object-contain align-middle mr-1">` : '🏥'} ${esc(db.cms.nama)}</div><a href="#/dash" class="block px-4 py-2 rounded-lg mx-2 ${k == 'dash' ? 'bg-blue-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}">Dashboard</a>${nav}</aside><main class="flex-1 min-w-0 flex flex-col"><header class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700"><button class="md:hidden text-xl" onclick="$('#sb').classList.toggle('hidden');$('#sb').classList.toggle('fixed');$('#sb').classList.toggle('z-40');$('#sb').classList.toggle('h-full')">☰</button><h2 class="font-semibold text-base flex-1 truncate">${(S[k] || {}).t || TITLE[k] || ''}</h2><span class="hidden md:inline text-xs text-slate-500">${esc(sessionStorage.getItem('simrs_user') || '')}</span><a href="index.html" target="_blank" rel="noopener" class="${btn('slate')} hidden sm:inline-block">🌐 Website</a><button class="${btn('slate')}" onclick="dbModal()">Data JSON</button><button class="${btn('red')}" onclick="logout()">Keluar</button></header><div id="main" class="flex-1 overflow-auto p-4"></div></main></div><div id="modal"></div><div id="dlg"></div><div id="toast" class="hidden"></div>`;
-  ({ dash, laporan, cms, inbox }[k] || (S[k] ? () => table(k) : dash))()
+  $('#app').innerHTML = `<div class="h-full flex"><aside id="sb" class="hidden md:block w-64 shrink-0 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 overflow-y-auto pb-6"><div class="p-4 font-bold text-lg">${cmsSafeImg(db.cms.logo) ? `<img src="${esc(cmsSafeImg(db.cms.logo))}" alt="" class="inline-block h-7 w-7 object-contain align-middle mr-1">` : '🏥'} ${esc(db.cms.nama)}</div><a href="#/dash" class="block px-4 py-2 rounded-lg mx-2 ${k == 'dash' ? 'bg-blue-600 text-white' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}">Dashboard</a>${nav}</aside><main class="flex-1 min-w-0 flex flex-col"><header class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700"><button class="md:hidden text-xl" onclick="$('#sb').classList.toggle('hidden');$('#sb').classList.toggle('fixed');$('#sb').classList.toggle('z-40');$('#sb').classList.toggle('h-full')">☰</button><h2 class="font-semibold text-base flex-1 truncate">${(S[k] || {}).t || TITLE[k] || ''}</h2><span class="hidden md:inline text-xs text-slate-500">${esc(sessionStorage.getItem('simrs_user') || '')}</span><a href="index.html?preview=1" target="_blank" rel="noopener" class="${btn('slate')} hidden sm:inline-block">🌐 Website</a><button class="${btn('slate')}" onclick="dbModal()">Data JSON</button><button class="${btn('red')}" onclick="logout()">Keluar</button></header><div id="main" class="flex-1 overflow-auto p-4"></div></main></div><div id="modal"></div><div id="dlg"></div><div id="toast" class="hidden"></div>`;
+  ({ dash, laporan, cms, inbox, publish: publishPage }[k] || (S[k] ? () => table(k) : dash))()
 }
 
 // ===== DASHBOARD =====
@@ -979,7 +991,7 @@ const HERO_TONES = [['blue', 'Biru (default)'], ['red', 'Merah (darurat)'], ['em
 const cmsTabCls = on => 'px-3 py-2 rounded-lg font-medium text-sm whitespace-nowrap ' +
   (on ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600');
 const cmsBox = 'border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-2';
-const cmsSafeImg = u => /^(https?:\/\/|\/|\.\/|\.\.\/|data:image\/)/i.test(String(u || '').trim()) ? String(u).trim() : '';
+const cmsSafeImg = u => { u = String(u || '').trim(); return u && (/^(https?:\/\/|data:image\/)/i.test(u) || !/^[a-z][a-z0-9+.-]*:/i.test(u)) ? u : '' };
 
 function cmsField(name, label, val, o = {}) {
   const t = o.type || 'text', ph = o.ph ? ` placeholder="${esc(o.ph)}"` : '', ex = o.attrs || '';
@@ -1019,7 +1031,16 @@ function cmsTab(id) {
     ${cmsField('c:facebook', 'Facebook URL', c.facebook, { ph: 'https://facebook.com/...', hint: 'Kosongkan untuk menyembunyikan ikon di website.' })}
     ${cmsField('c:instagram', 'Instagram URL', c.instagram, { ph: 'https://instagram.com/...' })}
     ${cmsField('c:youtube', 'YouTube URL', c.youtube, { ph: 'https://youtube.com/...' })}
-    ${cmsField('c:tiktok', 'TikTok URL', c.tiktok, { ph: 'https://tiktok.com/@...' })}</div>`;
+    ${cmsField('c:tiktok', 'TikTok URL', c.tiktok, { ph: 'https://tiktok.com/@...' })}
+    <hr class="my-4 border-slate-200 dark:border-slate-700">
+    <h4 class="font-semibold text-sm">Pengiriman Formulir Website</h4>
+    <p class="text-xs text-slate-500">Website di GitHub Pages bersifat statis (tanpa server), sehingga pendaftaran/pesan pengunjung tidak bisa disimpan ke inbox admin. Pilih cara pengirimannya:</p>
+    <label class="block"><span class="text-xs text-slate-500 dark:text-slate-400">Cara pengiriman</span><select name="c:form_mode" class="${inp}">
+      <option value="auto" ${(c.form_mode || 'auto') == 'auto' ? 'selected' : ''}>Otomatis (situs terbit → WhatsApp; uji lokal → inbox lokal)</option>
+      <option value="whatsapp" ${c.form_mode == 'whatsapp' ? 'selected' : ''}>WhatsApp (pesan terisi dikirim ke nomor RS di atas)</option>
+      <option value="endpoint" ${c.form_mode == 'endpoint' ? 'selected' : ''}>Endpoint formulir (Formspree, Web3Forms, dll.)</option>
+      <option value="lokal" ${c.form_mode == 'lokal' ? 'selected' : ''}>Inbox lokal (hanya demo; tidak sampai ke admin bila pengunjung beda browser)</option></select></label>
+    ${cmsField('c:form_endpoint', 'URL endpoint formulir (https)', c.form_endpoint, { ph: 'https://formspree.io/f/xxxxxxx', hint: 'Dipakai bila cara pengiriman = Endpoint. Data dikirim sebagai JSON via POST dan harus https.' })}</div>`;
   if (id == 'jam') return H('Jam Operasional') + `<div class="space-y-3">
     ${cmsField('c:jam_senin_jumat', 'Senin - Jumat', c.jam_senin_jumat)}
     ${cmsField('c:jam_sabtu', 'Sabtu', c.jam_sabtu)}
@@ -1178,7 +1199,7 @@ function cmsAdmin(tab) {
   $('#main').innerHTML = `<div class="${card} p-5">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
       <h2 class="text-xl font-bold">Kelola Konten Website Publik</h2>
-      <a href="index.html" target="_blank" rel="noopener" class="${btn('slate')} inline-block">🌐 Lihat Website</a>
+      <a href="index.html?preview=1" target="_blank" rel="noopener" class="${btn('slate')} inline-block">🌐 Lihat Website</a>
     </div>
     <p class="text-slate-500 mb-1">Edit konten, lalu klik <b>Simpan Perubahan</b>. Tambah, hapus, urutan item, dan unggah gambar langsung tersimpan.</p>
     <p class="mb-4">${storageBadge()}</p>
@@ -1410,7 +1431,7 @@ function inbox(tab) {
       <p class="mt-1 whitespace-pre-wrap">${esc(x.pesan)}</p></div>`).join('')
       : '<p class="py-8 text-center text-slate-400">Belum ada pesan dari website.</p>';
   }
-  $('#main').innerHTML = `<div class="${card} p-5"><div class="flex flex-wrap items-center justify-between gap-2 mb-4"><div class="flex gap-2">${tb('reg', 'Pendaftaran Online', nReg)}${tb('pesan', 'Pesan Masuk', nMsg)}</div><span class="text-xs text-slate-400">Data masuk dari form di website publik (browser yang sama).</span></div>${body}</div>`;
+  $('#main').innerHTML = `<div class="${card} p-5"><div class="flex flex-wrap items-center justify-between gap-2 mb-4"><div class="flex gap-2">${tb('reg', 'Pendaftaran Online', nReg)}${tb('pesan', 'Pesan Masuk', nMsg)}</div><span class="text-xs text-slate-400">Hanya menampung form dari mode <b>Inbox lokal</b> (browser yang sama). Di GitHub Pages pendaftaran dikirim via WhatsApp/endpoint.</span></div>${body}</div>`;
   refreshBadge();
 }
 
@@ -1455,9 +1476,323 @@ function inboxBaca(id, forceRead) {
   if (!forceRead) inbox(); else refreshBadge();
 }
 
+// ===== HOSTING GITHUB PAGES: LOGIN TOKEN & PUBLIKASI =====
+// Alur: admin login memakai GitHub Personal Access Token (hanya akun dengan akses TULIS ke repositori yang lolos).
+// "Publikasikan" mengirim KONTEN PUBLIK (CMS, daftar dokter & poli tanpa data sensitif) ke repositori sebagai
+// data/site.json + gambar di assets/img/, dalam SATU commit. Data klinis (pasien, RME, tagihan, SIP, kata sandi) tidak pernah dikirim.
+const GHCFG = Object.assign({ owner: '', repo: '', branch: '', dataPath: 'data/site.json', imgDir: 'assets/img', allowedUsers: [] }, window.SIMRS_CONFIG || {});
+GHCFG.imgDir = String(GHCFG.imgDir || 'assets/img').replace(/^\/+|\/+$/g, '');
+GHCFG.dataPath = String(GHCFG.dataPath || 'data/site.json').replace(/^\/+/, '');
+if (!GHCFG.owner || !GHCFG.repo) {                 // deteksi otomatis dari https://<owner>.github.io/<repo>/
+  const m = location.hostname.match(/^([a-z0-9-]+)\.github\.io$/i);
+  if (m) {
+    const seg = location.pathname.split('/')[1];
+    GHCFG.owner = GHCFG.owner || m[1];
+    GHCFG.repo = GHCFG.repo || (seg && !/\.[a-z0-9]+$/i.test(seg) ? seg : m[1] + '.github.io');
+  }
+}
+const GH_ON = !!(GHCFG.owner && GHCFG.repo);
+const ghTok = () => sessionStorage.getItem('simrs_gh_token') || '';
+const ghBranch = () => sessionStorage.getItem('simrs_gh_branch') || GHCFG.branch || '';
+const ghRepoPath = () => `/repos/${encodeURIComponent(GHCFG.owner)}/${encodeURIComponent(GHCFG.repo)}`;
+const ghSiteUrl = () => GHCFG.repo.toLowerCase() == GHCFG.owner.toLowerCase() + '.github.io'
+  ? `https://${GHCFG.owner}.github.io/` : `https://${GHCFG.owner}.github.io/${GHCFG.repo}/`;
+
+function ghMsg(s, m) {
+  if (s == 401) return 'Token tidak valid atau sudah kedaluwarsa.';
+  if (s == 403) return /rate limit/i.test(m || '') ? 'Batas permintaan GitHub tercapai. Coba lagi beberapa menit lagi.' : 'Token tidak memiliki izin yang cukup (butuh Contents: Read and write pada repositori ini).';
+  if (s == 404) return 'Repositori/branch tidak ditemukan, atau token tidak diberi akses ke repositori ini.';
+  if (s == 409 || s == 422) return 'Konflik di GitHub: ' + (m || 'coba lagi.');
+  return 'GitHub: ' + (m || 'HTTP ' + s);
+}
+async function gh(path, opt = {}) {
+  let r;
+  try {
+    r = await fetch('https://api.github.com' + path, {
+      method: opt.method || 'GET', cache: 'no-store',
+      headers: Object.assign({ Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', Authorization: 'Bearer ' + (opt.token || ghTok()) },
+        opt.body ? { 'Content-Type': 'application/json' } : {}, opt.headers || {}),
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    });
+  } catch (e) { const err = new Error('Tidak dapat terhubung ke GitHub. Periksa koneksi internet Anda.'); err.status = 0; throw err }
+  if (!r.ok) {
+    let m = ''; try { m = (await r.json()).message } catch (e) { }
+    const err = new Error(ghMsg(r.status, m)); err.status = r.status; throw err;
+  }
+  if (opt.raw) return r;
+  return r.status == 204 ? null : r.json();
+}
+
+// ----- Login token -----
+async function doTokenLogin(e) {
+  e.preventDefault();
+  const le = $('#le'), bt = $('#lbtn'), tok = $('#lt').value.trim();
+  const show = m => { le.textContent = m; le.classList.remove('hidden') };
+  const left = Math.ceil((_lock - Date.now()) / 1000);
+  if (left > 0) return show(`Terlalu banyak percobaan. Coba lagi dalam ${left} detik.`), false;
+  if (!/^(github_pat_|ghp_)[A-Za-z0-9_]{30,}$/.test(tok)) return show('Format token tidak dikenali. Gunakan Personal Access Token GitHub (diawali github_pat_ atau ghp_).'), false;
+  bt.disabled = true; bt.textContent = 'Memverifikasi...'; le.classList.add('hidden');
+  try {
+    const repo = await gh(ghRepoPath(), { token: tok });
+    const pm = repo.permissions || {};
+    if (!(pm.push || pm.admin || pm.maintain)) throw new Error('Token valid, tetapi tidak memiliki izin TULIS ke repositori ini.');
+    let login = '';
+    try { login = (await gh('/user', { token: tok })).login || '' } catch (_) { }
+    const allow = (GHCFG.allowedUsers || []).map(x => String(x).toLowerCase());
+    if (allow.length && !allow.includes(login.toLowerCase())) throw new Error('Akun GitHub ini tidak termasuk daftar admin yang diizinkan.');
+    _fails = 0;
+    sessionStorage.setItem('simrs_gh_token', tok);
+    sessionStorage.setItem('simrs_gh_branch', GHCFG.branch || repo.default_branch || 'main');
+    sessionStorage.setItem('simrs_auth', '1');
+    sessionStorage.setItem('simrs_user', login ? '@' + login : 'admin');
+    idleReset(); shell(); ghCheckSync();
+  } catch (err) {
+    if (++_fails >= 5) { _lock = Date.now() + 30000; _fails = 0 }
+    show(err.message || 'Login gagal.');
+    bt.disabled = false; bt.textContent = 'Masuk dengan Token';
+  }
+  return false
+}
+
+// Sesi otomatis berakhir bila tidak ada aktivitas 30 menit
+const IDLE_MS = 30 * 60 * 1000;
+let _idle = 0;
+function idleReset() {
+  clearTimeout(_idle);
+  if (!authed()) return;
+  _idle = setTimeout(() => {
+    logout();
+    const le = $('#le');
+    if (le) { le.textContent = 'Sesi berakhir karena tidak ada aktivitas. Silakan masuk kembali.'; le.classList.remove('hidden') }
+  }, IDLE_MS)
+}
+['click', 'keydown', 'pointerdown', 'touchstart'].forEach(ev => addEventListener(ev, idleReset, { passive: true }));
+
+// ----- Data yang diterbitkan -----
+const PUB_COLL = ['cms_hero', 'cms_layanan', 'cms_promo', 'cms_berita', 'cms_testimoni', 'cms_nav_top', 'cms_nav_bottom', 'cms_mengapa'];
+const PUB = { busy: false, log: [] };
+const pubMeta = () => { try { return JSON.parse(localStorage.getItem('simrs_pub_meta')) || {} } catch (e) { return {} } };
+const pubSetMeta = m => { try { localStorage.setItem('simrs_pub_meta', JSON.stringify(m)) } catch (e) { } };
+
+// HANYA konten publik. Tidak memuat: pasien, RME, tagihan, pengguna/kata sandi, No. SIP dokter, lokasi internal, dll.
+function pubBuildPayload() {
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const p = { version: 1, generatedAt: new Date().toISOString(), cms: clone(db.cms) };
+  delete p.cms.info;                                   // catatan internal dashboard
+  PUB_COLL.forEach(k => { p[k] = clone(db[k] || []) });
+  p.poli = db.poli.filter(x => x.status != 'Nonaktif').map(x => ({ id: x.id, nama: x.nama, status: x.status || 'Aktif' }));
+  p.dokter = db.dokter.filter(d => d.tampil !== false).map(d => ({ id: d.id, nama: d.nama, spesialis: d.spesialis, poli: d.poli, jadwal: d.jadwal, foto: d.foto || '' }));
+  p.dokter_hidden = db.dokter.filter(d => d.tampil === false).map(d => d.id);
+  return p;
+}
+
+async function sha256hex(str) {
+  if (window.crypto && crypto.subtle) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  const h = seed => {                                   // cadangan bila konteks tidak aman
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for (let i = 0; i < str.length; i++) { const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677) }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(14, '0')
+  };
+  return h(1) + h(2) + h(3);
+}
+const stableStr = o => Array.isArray(o) ? '[' + o.map(stableStr).join(',') + ']' : o && typeof o == 'object'
+  ? '{' + Object.keys(o).sort().map(k => JSON.stringify(k) + ':' + stableStr(o[k])).join(',') + '}' : JSON.stringify(o);
+async function pubFp(json) { const { generatedAt, ...rest } = json; return (await sha256hex(stableStr(rest))).slice(0, 20) }
+
+// Gambar data-URL -> file di repositori (nama = hash isi, sehingga tidak diunggah ulang bila tidak berubah)
+const _imgHash = new Map();
+async function pubPrepared() {
+  const json = pubBuildPayload(), files = {};
+  const conv = async (obj, key) => {
+    const v = obj[key], m = typeof v == 'string' && v.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/);
+    if (!m) return;
+    let h = _imgHash.get(v);
+    if (!h) { h = (await sha256hex(v)).slice(0, 16); _imgHash.set(v, h) }
+    const path = `${GHCFG.imgDir}/${h}.${m[1] == 'jpeg' ? 'jpg' : m[1]}`;
+    files[path] = m[2]; obj[key] = path;
+  };
+  await conv(json.cms, 'logo'); await conv(json.cms, 'favicon');
+  for (const [col, key] of [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto']]) for (const it of json[col]) await conv(it, key);
+  return { json, files };
+}
+const pubUsedPaths = json => {
+  const used = new Set(), pre = GHCFG.imgDir + '/', add = v => { if (typeof v == 'string' && v.startsWith(pre)) used.add(v) };
+  add(json.cms.logo); add(json.cms.favicon);
+  [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto']].forEach(([c, k]) => json[c].forEach(it => add(it[k])));
+  return used;
+};
+
+const pubLog = m => {
+  PUB.log.push(new Date().toLocaleTimeString('id-ID') + '  ' + m);
+  const el = $('#pub-log');
+  if (el) { el.textContent = PUB.log.join('\n'); el.scrollTop = el.scrollHeight }
+};
+function pubBusy(b) { PUB.busy = b; document.querySelectorAll('[data-pub-btn]').forEach(x => { x.disabled = b; x.classList.toggle('opacity-50', b) }) }
+
+async function pubFetchRemote() {
+  try {
+    const r = await gh(`${ghRepoPath()}/contents/${GHCFG.dataPath}?ref=${encodeURIComponent(ghBranch())}`, { raw: true, headers: { Accept: 'application/vnd.github.raw+json' } });
+    const j = await r.json();
+    return j && j.cms ? j : null;
+  } catch (e) { if (e.status == 404) return null; throw e }
+}
+
+function pubApplyRemote(j) {
+  if (Array.isArray(j.cms_hero) !== true && !j.cms) throw new Error('Format data terbit tidak dikenali.');
+  PUB_COLL.forEach(k => { if (Array.isArray(j[k])) db[k] = j[k] });
+  db.cms = { ...db.cms, ...(j.cms || {}) };           // catatan internal (info) tetap lokal
+  (j.poli || []).forEach(p => {
+    const x = db.poli.find(y => y.id == p.id);
+    if (x) { x.nama = p.nama; x.status = p.status || x.status } else db.poli.push({ id: p.id, kode: 'PL' + pad(p.id), nama: p.nama, lokasi: '', status: p.status || 'Aktif' });
+  });
+  (j.dokter || []).forEach(d => {
+    const x = db.dokter.find(y => y.id == d.id), v = { nama: d.nama, spesialis: d.spesialis, poli: d.poli, jadwal: d.jadwal, foto: d.foto || '', tampil: true };
+    if (x) Object.assign(x, v); else db.dokter.push({ id: d.id, sip: '', ...v });
+  });
+  (j.dokter_hidden || []).forEach(id => { const x = db.dokter.find(y => y.id == id); if (x) x.tampil = false });
+  normalizeDb(); save(); applyFavicon();
+}
+
+async function ghCheckSync() {
+  if (!GH_ON || !ghTok()) return;
+  try {
+    const j = await pubFetchRemote();
+    if (!j) return;
+    const { json } = await pubPrepared(), rfp = await pubFp(j), lfp = await pubFp(json), meta = pubMeta();
+    if (rfp == lfp) { pubSetMeta({ at: j.generatedAt, fp: rfp }); return }
+    if (meta.fp && meta.at == j.generatedAt) return;   // sudah sinkron dengan versi terbit ini; selisih = perubahan lokal
+    ask(`Data terbit di GitHub (${fmtDt(j.generatedAt)}) berbeda dengan data CMS di perangkat ini. Ambil data terbit sekarang? Konten CMS lokal akan diganti.`, () => {
+      try { pubApplyRemote(j); pubSetMeta({ at: j.generatedAt, fp: rfp }); toast('Data terbit diambil dari GitHub'); shell() } catch (e) { toast(e.message, 1) }
+    });
+  } catch (e) { /* bisa dicek manual di menu Publikasi GitHub */ }
+}
+
+function pubRun() {
+  if (PUB.busy) return;
+  if (!GH_ON || !ghTok()) return toast('Login dengan token GitHub terlebih dulu', 1);
+  ask('Publikasikan konten ke website publik? Teks, gambar, menu, dokumen legal, serta daftar dokter & poli di CMS akan menjadi PUBLIK. Data klinis (pasien, RME, tagihan, SIP, dll.) TIDAK ikut dikirim. Pastikan data Dokter & Poli sudah diganti dengan data asli (bukan data dummy bawaan).', async () => {
+    pubBusy(true); PUB.log = [];
+    try {
+      const o = GHCFG.owner, rp = ghRepoPath();
+      pubLog('Memeriksa akses repositori...');
+      const repo = await gh(rp), pm = repo.permissions || {};
+      if (!(pm.push || pm.admin || pm.maintain)) throw new Error('Token tidak memiliki izin tulis ke repositori ini.');
+      const br = ghBranch() || repo.default_branch || 'main';
+      pubLog(`Branch: ${br}`);
+
+      const { json, files } = await pubPrepared();
+      const used = pubUsedPaths(json);
+      let existing = [];
+      try { existing = (await gh(`${rp}/contents/${GHCFG.imgDir}?ref=${encodeURIComponent(br)}`)).map(x => x.path) } catch (e) { if (e.status != 404) throw e }
+      const reImg = new RegExp('^' + GHCFG.imgDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '/[0-9a-f]{16}\\.(jpg|png|webp)$');
+      const toUpload = Object.keys(files).filter(p => !existing.includes(p));
+      const toDelete = existing.filter(p => reImg.test(p) && !used.has(p));
+      pubLog(`Gambar: ${Object.keys(files).length} dipakai, ${toUpload.length} baru, ${toDelete.length} tidak terpakai (dihapus).`);
+
+      pubLog('Mengambil commit terakhir...');
+      const ref = await gh(`${rp}/git/ref/heads/${br}`);
+      const headSha = ref.object.sha, head = await gh(`${rp}/git/commits/${headSha}`);
+      const tree = [];
+      for (const p of toUpload) {
+        pubLog(`Mengunggah ${p}...`);
+        const b = await gh(`${rp}/git/blobs`, { method: 'POST', body: { content: files[p], encoding: 'base64' } });
+        tree.push({ path: p, mode: '100644', type: 'blob', sha: b.sha });
+      }
+      pubLog('Menyimpan data konten...');
+      const jb = await gh(`${rp}/git/blobs`, { method: 'POST', body: { content: JSON.stringify(json, null, 1), encoding: 'utf-8' } });
+      tree.push({ path: GHCFG.dataPath, mode: '100644', type: 'blob', sha: jb.sha });
+      toDelete.forEach(p => tree.push({ path: p, mode: '100644', type: 'blob', sha: null }));
+      const nt = await gh(`${rp}/git/trees`, { method: 'POST', body: { base_tree: head.tree.sha, tree } });
+      pubLog('Membuat commit...');
+      const c = await gh(`${rp}/git/commits`, { method: 'POST', body: { message: 'CMS: publikasi konten ' + new Date().toLocaleString('id-ID'), tree: nt.sha, parents: [headSha] } });
+      await gh(`${rp}/git/refs/heads/${br}`, { method: 'PATCH', body: { sha: c.sha, force: false } });
+
+      pubSetMeta({ at: json.generatedAt, fp: await pubFp(json), sha: c.sha, branch: br });
+      pubLog(`BERHASIL. Commit ${c.sha.slice(0, 7)}. GitHub Pages memperbarui situs dalam ±1-2 menit.`);
+      toast('Berhasil diterbitkan. Situs diperbarui dalam ±1-2 menit.');
+      pubStatus();
+    } catch (e) {
+      pubLog('GAGAL: ' + (e.message || e));
+      toast(e.message || 'Publikasi gagal', 1);
+    }
+    pubBusy(false);
+  });
+}
+
+function pubPull() {
+  if (PUB.busy) return;
+  if (!GH_ON || !ghTok()) return toast('Login dengan token GitHub terlebih dulu', 1);
+  ask('Ambil data terbit dari GitHub? Konten CMS di perangkat ini (yang belum diterbitkan) akan diganti.', async () => {
+    pubBusy(true); PUB.log = [];
+    try {
+      pubLog('Mengambil data terbit dari GitHub...');
+      const j = await pubFetchRemote();
+      if (!j) throw new Error(`Belum ada ${GHCFG.dataPath} di repositori. Gunakan "Publikasikan" terlebih dulu.`);
+      pubApplyRemote(j);
+      pubSetMeta({ at: j.generatedAt, fp: await pubFp(j) });
+      pubLog(`Selesai. Data terbit tanggal ${fmtDt(j.generatedAt)} dimuat.`);
+      toast('Data terbit berhasil diambil');
+      pubStatus();
+    } catch (e) { pubLog('GAGAL: ' + (e.message || e)); toast(e.message || 'Gagal mengambil data', 1) }
+    pubBusy(false);
+  });
+}
+
+function pubDownload() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(pubBuildPayload(), null, 1)], { type: 'application/json' }));
+  a.download = 'site.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove() }, 500);
+}
+
+async function pubStatus() {
+  const el = $('#pub-status');
+  if (!el) return;
+  try {
+    const { json } = await pubPrepared(), fp = await pubFp(json), m = pubMeta();
+    const e2 = $('#pub-status');
+    if (!e2) return;
+    e2.innerHTML = !m.fp ? '<span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-700">Belum pernah diterbitkan dari perangkat ini</span>'
+      : fp == m.fp ? '<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">Sinkron dengan versi terbit</span>'
+        : '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700">Ada perubahan yang belum diterbitkan</span>';
+    const t = $('#pub-last');
+    if (t) t.textContent = m.at ? fmtDt(m.at) + (m.sha ? ` (commit ${String(m.sha).slice(0, 7)})` : '') : '-';
+  } catch (e) { el.textContent = '-' }
+}
+
+function publishPage() {
+  const site = GH_ON ? ghSiteUrl() : '';
+  const row = (k, v) => `<tr class="border-b border-slate-100 dark:border-slate-700"><td class="py-2 pr-4 text-slate-500 whitespace-nowrap">${k}</td><td class="py-2">${v}</td></tr>`;
+  const b = (txt, fn, cls = btn()) => `<button type="button" data-pub-btn class="${cls}" onclick="${fn}" ${GH_ON ? '' : 'disabled'}>${txt}</button>`;
+  $('#main').innerHTML = `<div class="${card} p-5 space-y-5">
+    <div><h2 class="text-xl font-bold">Publikasi ke GitHub Pages</h2>
+    <p class="text-slate-500">Konten publik diterbitkan ke repositori sebagai <code>${esc(GHCFG.dataPath)}</code> dan <code>${esc(GHCFG.imgDir)}/</code>. Pengunjung website membaca file tersebut.</p></div>
+    ${GH_ON ? `<table class="w-full text-left">${row('Repositori', `<b>${esc(GHCFG.owner)}/${esc(GHCFG.repo)}</b>`)}${row('Branch', esc(ghBranch() || '(default)'))}${row('Alamat situs', `<a class="text-blue-600 underline" target="_blank" rel="noopener" href="${esc(site)}">${esc(site)}</a>`)}${row('Login sebagai', esc(sessionStorage.getItem('simrs_user') || '-'))}${row('Terakhir terbit', '<span id="pub-last">-</span>')}${row('Status', '<span id="pub-status">memeriksa...</span>')}</table>`
+      : `<div class="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm">Mode GitHub belum aktif. Isi <code>owner</code> dan <code>repo</code> di <code>config.js</code>, atau buka panel ini dari <code>https://&lt;owner&gt;.github.io/&lt;repo&gt;/simrs.html</code> (terdeteksi otomatis). Lihat <b>PANDUAN-GITHUB-PAGES.md</b>.</div>`}
+    <div class="flex flex-wrap gap-2">
+      ${b('⬆ Publikasikan ke GitHub', 'pubRun()')}
+      ${b('⬇ Ambil data terbit', 'pubPull()', btn('slate'))}
+      <a class="${btn('slate')} inline-block" target="_blank" rel="noopener" href="index.html?preview=1">Pratinjau draft ↗</a>
+      ${GH_ON ? `<a class="${btn('slate')} inline-block" target="_blank" rel="noopener" href="${esc(site)}">Lihat situs publik ↗</a>` : ''}
+      <button type="button" class="${btn('slate')}" onclick="pubDownload()">Unduh site.json (manual)</button>
+    </div>
+    <div class="grid md:grid-cols-2 gap-3 text-sm">
+      <div class="${cmsBox}"><h4 class="font-semibold">Ikut diterbitkan (publik)</h4><ul class="list-disc pl-5 text-slate-500 space-y-0.5"><li>Seluruh konten CMS: info RS, kontak, jam, statistik, tentang, menu, hero, layanan, promo, berita, testimoni, kebijakan &amp; syarat</li><li>Gambar CMS (logo, favicon, hero, promo, berita, foto dokter)</li><li>Dokter yang berstatus <i>Tampil</i> (nama, spesialis, poli, jadwal, foto) dan poli aktif</li></ul></div>
+      <div class="${cmsBox}"><h4 class="font-semibold text-red-600">TIDAK pernah dikirim</h4><ul class="list-disc pl-5 text-slate-500 space-y-0.5"><li>Data pasien, RME, pendaftaran, tagihan, kamar, lab, radiologi, farmasi, dll.</li><li>No. SIP dokter, kata sandi pengguna, catatan internal dashboard</li><li>Token GitHub Anda (hanya di tab ini, hilang saat tab ditutup)</li></ul></div>
+    </div>
+    <div><h4 class="font-semibold mb-1">Log</h4><pre id="pub-log" class="text-xs bg-slate-900 text-slate-100 rounded-lg p-3 min-h-[5rem] max-h-64 overflow-auto whitespace-pre-wrap">${esc(PUB.log.join('\n'))}</pre></div></div>`;
+  if (GH_ON) pubStatus();
+}
+
 // ===== MAKE FUNCTIONS GLOBALLY ACCESSIBLE =====
 Object.assign(window, { cmsAdmin, switchCmsTab, saveCmsFormData, saveCmsAdmin, cmsClose, addCmsItem, deleteCmsItem, moveCmsItem,
-  cmsImgUpload, cmsImgClear, cmsFilterDokter, cmsLegalPreview, cmsLegalReset, inbox, inboxTerima, inboxTolak, inboxHapus, inboxBaca });
+  cmsImgUpload, cmsImgClear, cmsFilterDokter, cmsLegalPreview, cmsLegalReset, doTokenLogin, pubRun, pubPull, pubDownload, publishPage, inbox, inboxTerima, inboxTolak, inboxHapus, inboxBaca });
 
 // ===== EVENT LISTENERS =====
 addEventListener('hashchange', () => authed() && shell());

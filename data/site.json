@@ -1,0 +1,393 @@
+{
+ "version": 1,
+ "generatedAt": "2026-10-25T03:13:29.641Z",
+ "cms": {
+  "nama": "RS Sehat Sentosa",
+  "tagline": "Melayani dengan Hati",
+  "alamat": "Jl. Kesehatan No. 1, Jakarta",
+  "telepon": "(021) 555-0100",
+  "telepon_igd": "(021) 555-0119",
+  "email": "info@rssehatsentosa.co.id",
+  "whatsapp": "6281234567890",
+  "fax": "(021) 555-0101",
+  "facebook": "https://facebook.com/rssehatsentosa",
+  "instagram": "https://instagram.com/rssehatsentosa",
+  "youtube": "https://youtube.com/rssehatsentosa",
+  "tiktok": "https://tiktok.com/@rssehatsentosa",
+  "jam_senin_jumat": "08.00 - 20.00",
+  "jam_sabtu": "08.00 - 15.00",
+  "jam_minggu": "Tutup",
+  "jam_igd": "24 Jam",
+  "stat_tenaga_medis": 150,
+  "stat_pasien_dilayani": 10000,
+  "stat_mitra": 50,
+  "stat_penghargaan": 25,
+  "tentang_sejarah": "RS Sehat Sentosa didirikan pada tahun 2000 dengan visi menjadi rumah sakit terpercaya yang melayani dengan hati.",
+  "tentang_visi": "Menjadi rumah sakit terbaik yang memberikan pelayanan kesehatan berkualitas dan terjangkau.",
+  "tentang_misi": "1. Memberikan pelayanan kesehatan terbaik\n2. Mengembangkan SDM profesional\n3. Menyediakan fasilitas modern",
+  "copyright": "2026 RS Sehat Sentosa. All rights reserved.",
+  "hero_autoplay": true,
+  "hero_interval": 5,
+  "logo": "",
+  "favicon": "",
+  "nav_bottom_title": "Link Cepat",
+  "mengapa_judul": "Mengapa Memilih Kami?",
+  "form_mode": "auto",
+  "form_endpoint": "",
+  "kebijakan_judul": "Kebijakan Privasi",
+  "kebijakan_aktif": true,
+  "kebijakan_update": "2026-10-25",
+  "kebijakan_isi": "## 1. Pendahuluan\n{{nama}} (\"kami\") menghargai privasi Anda. Kebijakan ini menjelaskan bagaimana kami mengumpulkan, menggunakan, menyimpan, dan melindungi data pribadi Anda saat menggunakan situs web ini, termasuk formulir pendaftaran online dan formulir kontak.\n\n## 2. Data yang Kami Kumpulkan\n- Data identitas dan kontak: nama lengkap, nomor telepon/WhatsApp, dan alamat email.\n- Data kunjungan: poli/dokter yang dipilih, tanggal kunjungan, dan keluhan singkat yang Anda tulis.\n- Isi pesan yang Anda kirim melalui formulir kontak.\n- Data teknis dasar seperti jenis perangkat dan peramban, bila diperlukan untuk menjaga keamanan dan kinerja situs.\n\n## 3. Tujuan Penggunaan Data\n- Memproses dan mengonfirmasi pendaftaran kunjungan Anda.\n- Menanggapi pertanyaan, saran, atau keluhan Anda.\n- Meningkatkan mutu layanan dan pengalaman Anda di situs ini.\n- Memenuhi kewajiban hukum dan peraturan di bidang kesehatan yang berlaku.\n\n## 4. Informasi Medis\nFormulir di situs ini bukan rekam medis. Mohon tidak menuliskan riwayat penyakit yang rinci pada kolom keluhan. Data kesehatan Anda yang sebenarnya dicatat dan dilindungi oleh {{nama}} sesuai ketentuan rekam medis dan kerahasiaan pasien yang berlaku.\n\n## 5. Pembagian Data\nKami tidak menjual data pribadi Anda. Data hanya dapat dibagikan kepada pihak berwenang atau penyedia layanan yang membantu operasional kami, sebatas yang diperlukan dan dengan kewajiban menjaga kerahasiaan, atau bila diwajibkan oleh peraturan perundang-undangan.\n\n## 6. Penyimpanan dan Keamanan\nKami menerapkan langkah teknis dan organisasi yang wajar untuk melindungi data dari akses, perubahan, atau pengungkapan yang tidak sah. Data disimpan selama diperlukan untuk tujuan di atas atau selama diwajibkan oleh peraturan.\n\n## 7. Hak Anda\nSesuai peraturan yang berlaku, Anda dapat meminta akses, perbaikan, atau penghapusan data pribadi Anda, serta menarik persetujuan yang telah diberikan, dengan menghubungi kami melalui kontak di bawah.\n\n## 8. Cookie dan Penyimpanan Peramban\nSitus ini dapat menggunakan penyimpanan peramban (misalnya cookie atau localStorage) untuk menjalankan fitur situs. Anda dapat menghapusnya melalui pengaturan peramban.\n\n## 9. Perubahan Kebijakan\nKebijakan ini dapat diperbarui sewaktu-waktu. Tanggal pembaruan terakhir tercantum pada bagian atas dokumen ini.\n\n## 10. Hubungi Kami\n**{{nama}}**\n{{alamat}}\nTelepon: {{telepon}} | Email: {{email}}",
+  "syarat_judul": "Syarat & Ketentuan",
+  "syarat_aktif": true,
+  "syarat_update": "2026-10-25",
+  "syarat_isi": "## 1. Penerimaan Ketentuan\nDengan mengakses dan menggunakan situs web {{nama}}, Anda menyatakan telah membaca, memahami, dan menyetujui syarat dan ketentuan ini.\n\n## 2. Tujuan Situs\nSitus ini menyediakan informasi layanan, jadwal dokter, promo, dan berita {{nama}}, serta fasilitas pendaftaran kunjungan dan pengiriman pesan secara online.\n\n## 3. Bukan Pengganti Nasihat Medis\nSeluruh informasi di situs ini bersifat umum dan tidak menggantikan pemeriksaan, diagnosis, atau pengobatan oleh tenaga medis. Jangan menunda atau mengabaikan saran medis karena informasi di situs ini. Dalam keadaan darurat, segera hubungi IGD kami di **{{telepon_igd}}** atau datang langsung ke rumah sakit.\n\n## 4. Pendaftaran Online\n- Pendaftaran online merupakan permintaan jadwal kunjungan dan baru berlaku setelah dikonfirmasi oleh petugas kami.\n- Anda wajib mengisi data dengan benar dan lengkap.\n- Jadwal dokter dapat berubah sewaktu-waktu karena keadaan tertentu; kami akan berusaha menginformasikan perubahan tersebut.\n- Kami berhak menolak atau menjadwalkan ulang pendaftaran bila diperlukan.\n\n## 5. Promo dan Harga\nPromo, paket, dan harga yang tampil di situs dapat berubah tanpa pemberitahuan sebelumnya, berlaku selama periode dan syarat yang ditentukan, serta dapat memerlukan pemeriksaan atau ketentuan tambahan di rumah sakit.\n\n## 6. Hak Kekayaan Intelektual\nSeluruh konten situs (teks, logo, gambar, dan desain) merupakan milik {{nama}} atau digunakan dengan izin, dan tidak boleh disalin atau digunakan untuk tujuan komersial tanpa izin tertulis.\n\n## 7. Penggunaan yang Dilarang\nAnda dilarang menyalahgunakan situs, antara lain dengan mengirim data palsu, mengganggu keamanan atau kinerja situs, atau mengirim konten yang melanggar hukum.\n\n## 8. Batasan Tanggung Jawab\nKami berupaya menjaga akurasi dan ketersediaan situs, namun tidak menjamin situs bebas dari gangguan atau kesalahan. Sejauh diizinkan oleh hukum, {{nama}} tidak bertanggung jawab atas kerugian yang timbul akibat penggunaan situs ini.\n\n## 9. Tautan Pihak Ketiga\nSitus dapat memuat tautan ke situs lain. Kami tidak bertanggung jawab atas isi maupun kebijakan situs tersebut.\n\n## 10. Perubahan dan Hukum yang Berlaku\nKami dapat mengubah ketentuan ini sewaktu-waktu. Ketentuan ini tunduk pada hukum Republik Indonesia.\n\n## 11. Kontak\nPertanyaan tentang ketentuan ini dapat disampaikan ke {{email}} atau {{telepon}}."
+ },
+ "cms_hero": [
+  {
+   "id": 1,
+   "badge": "Rumah Sakit Terpercaya",
+   "judul": "Kesehatan Anda, Prioritas Kami",
+   "subtitle": "Layanan kesehatan berkualitas dengan dokter spesialis berpengalaman dan fasilitas modern untuk keluarga Anda.",
+   "cta1_text": "Temukan Dokter",
+   "cta1_link": "#dokter",
+   "cta2_text": "Lihat Layanan",
+   "cta2_link": "#layanan",
+   "warna": "blue",
+   "aktif": true,
+   "gambar": ""
+  },
+  {
+   "id": 2,
+   "badge": "IGD 24 Jam",
+   "judul": "Gawat Darurat? Kami Siap 24 Jam",
+   "subtitle": "Tim medis profesional siap melayani Anda kapan saja. Hubungi IGD kami untuk penanganan cepat dan tepat.",
+   "cta1_text": "Hubungi IGD",
+   "cta1_link": "tel:0215550119",
+   "cta2_text": "Lokasi Kami",
+   "cta2_link": "#kontak",
+   "warna": "red",
+   "aktif": true,
+   "gambar": ""
+  },
+  {
+   "id": 3,
+   "badge": "Medical Checkup",
+   "judul": "Cek Kesehatan Reguler Itu Penting",
+   "subtitle": "Paket medical checkup lengkap dengan harga terjangkau. Deteksi dini untuk hidup lebih sehat.",
+   "cta1_text": "Lihat Promo",
+   "cta1_link": "#promo",
+   "cta2_text": "Buat Janji",
+   "cta2_link": "#janji",
+   "warna": "blue",
+   "aktif": true,
+   "gambar": ""
+  }
+ ],
+ "cms_layanan": [
+  {
+   "id": 1,
+   "nama": "Radiologi",
+   "deskripsi": "Layanan pencitraan medis dengan teknologi modern untuk diagnosis yang akurat.",
+   "icon": "fa-x-ray",
+   "aktif": true,
+   "darurat": false
+  },
+  {
+   "id": 2,
+   "nama": "Medical Checkup",
+   "deskripsi": "Pemeriksaan kesehatan menyeluruh untuk deteksi dini dan pencegahan penyakit.",
+   "icon": "fa-heartbeat",
+   "aktif": true,
+   "darurat": false
+  },
+  {
+   "id": 3,
+   "nama": "Laboratorium",
+   "deskripsi": "Layanan pemeriksaan laboratorium dengan peralatan modern dan hasil yang akurat.",
+   "icon": "fa-flask",
+   "aktif": true,
+   "darurat": false
+  },
+  {
+   "id": 4,
+   "nama": "IGD 24 Jam",
+   "deskripsi": "Layanan gawat darurat 24 jam dengan tim medis profesional dan peralatan lengkap.",
+   "icon": "fa-ambulance",
+   "aktif": true,
+   "darurat": true
+  },
+  {
+   "id": 5,
+   "nama": "Poli Anak",
+   "deskripsi": "Layanan kesehatan anak dengan dokter spesialis anak yang ramah dan berpengalaman.",
+   "icon": "fa-baby",
+   "aktif": true,
+   "darurat": false
+  },
+  {
+   "id": 6,
+   "nama": "Poli Kandungan",
+   "deskripsi": "Layanan kesehatan ibu dan kehamilan dengan fasilitas persalinan modern.",
+   "icon": "fa-female",
+   "aktif": true,
+   "darurat": false
+  },
+  {
+   "id": 7,
+   "nama": "Poli Saraf",
+   "deskripsi": "Layanan konsultasi dan penanganan gangguan saraf dengan dokter spesialis neurologi.",
+   "icon": "fa-brain",
+   "aktif": true,
+   "darurat": false
+  },
+  {
+   "id": 8,
+   "nama": "Rawat Inap",
+   "deskripsi": "Fasilitas rawat inap nyaman dengan berbagai kelas kamar dan pelayanan 24 jam.",
+   "icon": "fa-procedures",
+   "aktif": true,
+   "darurat": false
+  }
+ ],
+ "cms_promo": [
+  {
+   "id": 1,
+   "judul": "Paket Medical Checkup",
+   "deskripsi": "Paket pemeriksaan kesehatan lengkap dengan diskon spesial.",
+   "harga_asli": 1500000,
+   "harga_promo": 1050000,
+   "label": "DISKON 30%",
+   "aktif": true,
+   "gambar": ""
+  },
+  {
+   "id": 2,
+   "judul": "Paket Persalinan",
+   "deskripsi": "Paket persalinan normal dan caesar dengan fasilitas lengkap.",
+   "harga_asli": 0,
+   "harga_promo": 8000000,
+   "label": "PAKET HEMAT",
+   "aktif": true,
+   "gambar": ""
+  },
+  {
+   "id": 3,
+   "judul": "Paket Gigi & Mulut",
+   "deskripsi": "Konsultasi dokter gigi gratis + scaling gigi.",
+   "harga_asli": 0,
+   "harga_promo": 250000,
+   "label": "GRATIS SCALING",
+   "aktif": true,
+   "gambar": ""
+  }
+ ],
+ "cms_berita": [
+  {
+   "id": 1,
+   "judul": "Pentingnya Medical Checkup Rutin untuk Deteksi Dini Penyakit",
+   "ringkasan": "Medical checkup rutin membantu mendeteksi penyakit sejak dini sehingga penanganan dapat dilakukan lebih cepat dan efektif.",
+   "tanggal": "2026-01-15",
+   "kategori": "Kesehatan",
+   "icon": "fa-newspaper",
+   "aktif": true,
+   "isi": "",
+   "gambar": ""
+  },
+  {
+   "id": 2,
+   "judul": "Tips Menjaga Kesehatan Jantung di Era Modern",
+   "ringkasan": "Penyakit jantung masih menjadi pembunuh nomor satu di Indonesia. Berikut tips sederhana untuk menjaga kesehatan jantung Anda.",
+   "tanggal": "2026-01-10",
+   "kategori": "Jantung",
+   "icon": "fa-heart",
+   "aktif": true,
+   "isi": "",
+   "gambar": ""
+  },
+  {
+   "id": 3,
+   "judul": "RS Sehat Sentosa Gelar Operasi Gratis untuk Warga Kurang Mampu",
+   "ringkasan": "Dalam rangka HUT RS ke-10, kami mengadakan program operasi gratis bagi warga kurang mampu yang membutuhkan.",
+   "tanggal": "2026-01-05",
+   "kategori": "Kegiatan RS",
+   "icon": "fa-hospital",
+   "aktif": true,
+   "isi": "",
+   "gambar": ""
+  }
+ ],
+ "cms_testimoni": [
+  {
+   "id": 1,
+   "nama": "Budi Santoso",
+   "profesi": "Pasien Rawat Jalan",
+   "ulasan": "Pelayanan sangat memuaskan! Dokternya ramah dan penjelasan detail. Perawat juga sangat membantu. Fasilitas bersih dan nyaman.",
+   "rating": 5,
+   "aktif": true
+  },
+  {
+   "id": 2,
+   "nama": "Siti Rahayu",
+   "profesi": "Pasien Persalinan",
+   "ulasan": "Proses persalinan di sini sangat nyaman. Tim medisnya profesional dan suportif. Kamar rawat inapnya juga bersih dan lengkap.",
+   "rating": 5,
+   "aktif": true
+  },
+  {
+   "id": 3,
+   "nama": "Andi Wijaya",
+   "profesi": "Pasien Medical Checkup",
+   "ulasan": "Medical checkup di sini cepat dan hasilnya lengkap. Staffnya ramah dan membantu menjelaskan hasil pemeriksaan dengan detail.",
+   "rating": 4,
+   "aktif": true
+  }
+ ],
+ "cms_nav_top": [
+  {
+   "id": 1,
+   "label": "Beranda",
+   "url": "#beranda",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 2,
+   "label": "Tentang",
+   "url": "#tentang",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 3,
+   "label": "Layanan",
+   "url": "#layanan",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 4,
+   "label": "Dokter",
+   "url": "#dokter",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 5,
+   "label": "Promo",
+   "url": "#promo",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 6,
+   "label": "Berita",
+   "url": "#berita",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 7,
+   "label": "Kontak",
+   "url": "#kontak",
+   "aktif": true,
+   "baru": false
+  }
+ ],
+ "cms_nav_bottom": [
+  {
+   "id": 1,
+   "label": "Beranda",
+   "url": "#beranda",
+   "area": "kolom",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 2,
+   "label": "Layanan",
+   "url": "#layanan",
+   "area": "kolom",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 3,
+   "label": "Dokter",
+   "url": "#dokter",
+   "area": "kolom",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 4,
+   "label": "Promo",
+   "url": "#promo",
+   "area": "kolom",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 5,
+   "label": "Berita",
+   "url": "#berita",
+   "area": "kolom",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 6,
+   "label": "Kontak",
+   "url": "#kontak",
+   "area": "kolom",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 7,
+   "label": "Kebijakan Privasi",
+   "url": "#kebijakan-privasi",
+   "area": "baris",
+   "aktif": true,
+   "baru": false
+  },
+  {
+   "id": 8,
+   "label": "Syarat & Ketentuan",
+   "url": "#syarat-ketentuan",
+   "area": "baris",
+   "aktif": true,
+   "baru": false
+  }
+ ],
+ "cms_mengapa": [
+  {
+   "id": 1,
+   "judul": "Dokter Berpengalaman",
+   "deskripsi": "Tim dokter spesialis dengan pengalaman lebih dari 10 tahun",
+   "icon": "fa-user-md",
+   "aktif": true
+  },
+  {
+   "id": 2,
+   "judul": "Fasilitas Modern",
+   "deskripsi": "Peralatan medis terkini untuk diagnosis dan pengobatan akurat",
+   "icon": "fa-microscope",
+   "aktif": true
+  },
+  {
+   "id": 3,
+   "judul": "Pelayanan Prima",
+   "deskripsi": "Komitmen memberikan pelayanan terbaik dengan penuh kasih sayang",
+   "icon": "fa-heart",
+   "aktif": true
+  },
+  {
+   "id": 4,
+   "judul": "IGD 24 Jam",
+   "deskripsi": "Layanan gawat darurat siap melayani kapan saja",
+   "icon": "fa-clock",
+   "aktif": true
+  }
+ ]
+}

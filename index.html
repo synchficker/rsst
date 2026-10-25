@@ -7,7 +7,7 @@
   <meta name="description" content="RS Sehat Sentosa - Rumah sakit terpercaya dengan layanan 24 jam, dokter spesialis berpengalaman, dan fasilitas modern.">
 
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -298,6 +298,10 @@
       .wa-float { animation: none; }
     }
   </style>
+  <!-- Hindari kedipan konten bawaan sebelum data CMS termuat -->
+  <script>document.documentElement.classList.add('js-loading');setTimeout(function(){document.documentElement.classList.remove('js-loading')},3500)</script>
+  <noscript><style>html.js-loading body{opacity:1!important}</style></noscript>
+  <style>html.js-loading body{opacity:0}body{transition:opacity .25s ease}</style>
 </head>
 <body class="bg-white">
 
@@ -1178,6 +1182,7 @@
   <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[70] hidden max-w-md w-[92%] rounded-xl bg-slate-900 text-white shadow-2xl px-5 py-4 text-sm" role="status" aria-live="polite"></div>
 
   <!-- JavaScript -->
+  <script src="config.js"></script>
   <script src="public.js"></script>
 </body>
 </html>
