@@ -199,6 +199,10 @@ function seed() {
       form_mode: 'auto',
       form_endpoint: '',
 
+      // Section Poliklinik di website
+      poli_judul: 'Poliklinik & Unit Layanan',
+      poli_subjudul: 'Pilih poliklinik sesuai kebutuhan Anda, lihat lokasinya, dan daftar kunjungan dengan mudah.',
+
       // Kebijakan Privasi & Syarat Ketentuan (modal di website)
       kebijakan_judul: 'Kebijakan Privasi', kebijakan_aktif: true, kebijakan_update: new Date().toISOString().slice(0, 10), kebijakan_isi: LEGAL_PRIVASI,
       syarat_judul: 'Syarat & Ketentuan', syarat_aktif: true, syarat_update: new Date().toISOString().slice(0, 10), syarat_isi: LEGAL_SYARAT
@@ -249,22 +253,24 @@ function seed() {
       { id: 1, label: 'Beranda', url: '#beranda', aktif: true, baru: false },
       { id: 2, label: 'Tentang', url: '#tentang', aktif: true, baru: false },
       { id: 3, label: 'Layanan', url: '#layanan', aktif: true, baru: false },
-      { id: 4, label: 'Dokter', url: '#dokter', aktif: true, baru: false },
-      { id: 5, label: 'Promo', url: '#promo', aktif: true, baru: false },
-      { id: 6, label: 'Berita', url: '#berita', aktif: true, baru: false },
-      { id: 7, label: 'Kontak', url: '#kontak', aktif: true, baru: false }
+      { id: 4, label: 'Poliklinik', url: '#poliklinik', aktif: true, baru: false },
+      { id: 5, label: 'Dokter', url: '#dokter', aktif: true, baru: false },
+      { id: 6, label: 'Promo', url: '#promo', aktif: true, baru: false },
+      { id: 7, label: 'Berita', url: '#berita', aktif: true, baru: false },
+      { id: 8, label: 'Kontak', url: '#kontak', aktif: true, baru: false }
     ],
 
     // Menu navigasi bawah (footer): area 'kolom' = kolom Link Cepat, 'baris' = baris copyright
     cms_nav_bottom: [
       { id: 1, label: 'Beranda', url: '#beranda', area: 'kolom', aktif: true, baru: false },
       { id: 2, label: 'Layanan', url: '#layanan', area: 'kolom', aktif: true, baru: false },
-      { id: 3, label: 'Dokter', url: '#dokter', area: 'kolom', aktif: true, baru: false },
-      { id: 4, label: 'Promo', url: '#promo', area: 'kolom', aktif: true, baru: false },
-      { id: 5, label: 'Berita', url: '#berita', area: 'kolom', aktif: true, baru: false },
-      { id: 6, label: 'Kontak', url: '#kontak', area: 'kolom', aktif: true, baru: false },
-      { id: 7, label: 'Kebijakan Privasi', url: '#kebijakan-privasi', area: 'baris', aktif: true, baru: false },
-      { id: 8, label: 'Syarat & Ketentuan', url: '#syarat-ketentuan', area: 'baris', aktif: true, baru: false }
+      { id: 3, label: 'Poliklinik', url: '#poliklinik', area: 'kolom', aktif: true, baru: false },
+      { id: 4, label: 'Dokter', url: '#dokter', area: 'kolom', aktif: true, baru: false },
+      { id: 5, label: 'Promo', url: '#promo', area: 'kolom', aktif: true, baru: false },
+      { id: 6, label: 'Berita', url: '#berita', area: 'kolom', aktif: true, baru: false },
+      { id: 7, label: 'Kontak', url: '#kontak', area: 'kolom', aktif: true, baru: false },
+      { id: 8, label: 'Kebijakan Privasi', url: '#kebijakan-privasi', area: 'baris', aktif: true, baru: false },
+      { id: 9, label: 'Syarat & Ketentuan', url: '#syarat-ketentuan', area: 'baris', aktif: true, baru: false }
     ],
 
     // Bagian "Mengapa Memilih Kami?" (kartu keunggulan di Tentang Kami)
@@ -384,6 +390,16 @@ function normalizeDb() {
   db.cms_hero.forEach(h => { if (h.gambar == null) h.gambar = ''; if (!HERO_TONE_IDS.includes(h.warna)) h.warna = 'blue' });
   db.cms_berita.forEach(b => { if (b.isi == null) b.isi = '' });
   db.cms_layanan.forEach(l => { if (l.darurat == null) l.darurat = false });
+  if (!db.cms.mig_poli_nav) {                   // sekali: tambahkan menu "Poliklinik" (di bawah Layanan) pada data lama
+    const ins = (a, item) => {
+      if (a.some(n => n.url == '#poliklinik')) return;
+      const i = a.findIndex(n => n.url == '#layanan');
+      a.splice(i >= 0 ? i + 1 : a.length, 0, { id: Math.max(0, ...a.map(n => n.id)) + 1, ...item });
+    };
+    ins(db.cms_nav_top, { label: 'Poliklinik', url: '#poliklinik', aktif: true, baru: false });
+    ins(db.cms_nav_bottom, { label: 'Poliklinik', url: '#poliklinik', area: 'kolom', aktif: true, baru: false });
+    db.cms.mig_poli_nav = true;
+  }
   db.cms_promo.forEach(x => { if (x.gambar == null) x.gambar = '' });
   db.cms_berita.forEach(x => { if (x.gambar == null) x.gambar = '' });
   db.cms_nav_top.forEach(n => { if (n.baru == null) n.baru = false });
@@ -880,6 +896,7 @@ function dbImport() {
 const IMG_MAX_PX = 6000;      // resolusi maksimum file asli (lebar/tinggi)
 const IMG_SPECS = {
   hero:    { w: 1600, h: 900, fit: 'inside', type: 'jpeg', outKB: 450, maxFileMB: 5,   rec: '1920 × 800 px (lanskap)',            tip: 'Pilih foto dengan area kosong di sisi kiri agar teks terbaca.' },
+  poli:    { w: 800,  h: 450, fit: 'cover',  type: 'jpeg', outKB: 110, maxFileMB: 3,   rec: '800 × 450 px (16:9)',                 tip: 'Foto ruang/area poliklinik. Tanpa foto, kartu memakai ikon.' },
   dokter:  { w: 400,  h: 400, fit: 'cover',  type: 'jpeg', outKB: 70,  maxFileMB: 2,   rec: '400 × 400 px (persegi 1:1)',          tip: 'Foto setengah badan, wajah di bagian atas, latar polos.', top: true },
   promo:   { w: 800,  h: 450, fit: 'cover',  type: 'jpeg', outKB: 110, maxFileMB: 3,   rec: '800 × 450 px (16:9)',                 tip: 'Teks penting jangan terlalu di pinggir karena tepi bisa terpotong.' },
   berita:  { w: 800,  h: 450, fit: 'cover',  type: 'jpeg', outKB: 110, maxFileMB: 3,   rec: '800 × 450 px (16:9)',                 tip: 'Tampil sebagai gambar kartu dan header artikel.' },
@@ -966,13 +983,14 @@ const CMS_TABS = [
   { id: 'navbawah', label: 'Menu Bawah', icon: 'fa-link' },
   { id: 'legal', label: 'Kebijakan & Syarat', icon: 'fa-file-contract' },
   { id: 'hero', label: 'Hero Slider', icon: 'fa-images' },
+  { id: 'poli', label: 'Poliklinik', icon: 'fa-house-medical' },
   { id: 'dokter', label: 'Foto Dokter', icon: 'fa-user-md' },
   { id: 'layanan', label: 'Layanan', icon: 'fa-stethoscope' },
   { id: 'promo', label: 'Promo', icon: 'fa-tag' },
   { id: 'berita', label: 'Berita', icon: 'fa-newspaper' },
   { id: 'testi', label: 'Testimoni', icon: 'fa-comments' }
 ];
-let CMS_TAB = 'info', CMS_DOK_Q = '';
+let CMS_TAB = 'info', CMS_DOK_Q = '', CMS_POLI_Q = '';
 
 // Spesifikasi field per koleksi: [nama, tipe]  (tipe: bool | num | rating | teks default)
 const CMS_ITEMS = {
@@ -984,6 +1002,7 @@ const CMS_ITEMS = {
   cms_mengapa: { p: 'mengapa', f: [['judul'], ['deskripsi'], ['icon'], ['aktif', 'bool']] },
   cms_nav_top: { p: 'navtop', f: [['label'], ['url'], ['aktif', 'bool'], ['baru', 'bool']] },
   cms_nav_bottom: { p: 'navbawah', f: [['label'], ['url'], ['area'], ['aktif', 'bool'], ['baru', 'bool']] },
+  poli: { p: 'poli', f: [['icon'], ['deskripsi'], ['foto'], ['tampil', 'bool']] },   // tampilan poliklinik di website
   dokter: { p: 'dokter', f: [['foto'], ['tampil', 'bool']] }          // foto & visibilitas dokter di website
 };
 const HERO_TONES = [['blue', 'Biru (default)'], ['red', 'Merah (darurat)'], ['emerald', 'Hijau'], ['indigo', 'Indigo']];
@@ -1147,6 +1166,29 @@ function cmsTab(id) {
       Placeholder otomatis dari data RS: <code>{{nama}}</code> <code>{{alamat}}</code> <code>{{telepon}}</code> <code>{{telepon_igd}}</code> <code>{{email}}</code> <code>{{whatsapp}}</code>.<br>
       <b class="text-amber-600">Penting:</b> teks bawaan hanyalah <b>template umum</b>. Sesuaikan dengan praktik nyata rumah sakit dan minta peninjauan penasihat hukum sebelum dipublikasikan.</div>
       <div class="space-y-4">${doc('kebijakan', 'Kebijakan Privasi')}${doc('syarat', 'Syarat &amp; Ketentuan')}</div>`;
+  }
+
+  if (id == 'poli') {
+    const L = list('poli'), q = CMS_POLI_Q.trim().toLowerCase(), row = 'border border-slate-200 dark:border-slate-700 rounded-lg p-3';
+    return H('Poliklinik di Website') + `<div class="${cmsBox} mb-4 bg-slate-50 dark:bg-slate-900/40 text-xs text-slate-500">Atur tampilan tiap poliklinik di bagian <b>Poliklinik</b> website (di bawah Layanan): foto atau ikon, deskripsi singkat, dan tampil/sembunyi. Nama, kode, lokasi, dan status diubah di menu <a class="text-blue-600 underline" href="#/poli">Poliklinik</a>; poli berstatus <b>Nonaktif</b> tidak tampil. Poli yang disembunyikan juga tidak muncul di formulir pendaftaran.<br><b>Foto poli</b> - ${imgSpecText('poli')}</div>
+      <datalist id="fa-icons">${FA_ICONS.map(i => `<option value="${i}">`).join('')}</datalist>
+      <div class="space-y-3 mb-4">
+        ${cmsField('c:poli_judul', 'Judul bagian', c.poli_judul)}
+        ${cmsField('c:poli_subjudul', 'Subjudul', c.poli_subjudul, { type: 'textarea', rows: 2 })}
+      </div>
+      <input type="search" id="cms-poli-q" value="${esc(CMS_POLI_Q)}" oninput="cmsFilterPoli(this.value)" onkeydown="if(event.key==='Enter')event.preventDefault()" placeholder="Cari poliklinik / lokasi..." class="${inp} mb-3">
+      <div class="space-y-2">${L.map(p => {
+        const key = ((p.nama || '') + ' ' + (p.lokasi || '')).toLowerCase();
+        return `<div class="cms-poli ${row}" data-q="${esc(key)}" ${q && !key.includes(q) ? 'style="display:none"' : ''}>
+          <div class="flex flex-wrap items-start gap-4">
+            <div class="flex-1 min-w-[220px] space-y-2">
+              <div><span class="font-medium text-sm">${esc(p.nama)}</span>${p.status == 'Nonaktif' ? ' <span class="text-xs text-red-500">(Nonaktif - tidak tampil)</span>' : ''}<div class="text-xs text-slate-500">${esc(p.lokasi || '-')}</div></div>
+              ${cmsField('poli_' + p.id + '_deskripsi', 'Deskripsi singkat', p.deskripsi || '', { ph: 'mis. Pemeriksaan dan konsultasi penyakit anak' })}
+              <div class="flex flex-wrap items-end gap-4">${cmsField('poli_' + p.id + '_icon', 'Ikon (opsional)', p.icon || '', { ph: 'otomatis', attrs: 'list="fa-icons"', cls: 'w-40' })}${cmsCheck('poli_' + p.id + '_tampil', 'Tampil di website', p.tampil !== false)}</div>
+            </div>
+            ${cmsImage('poli_' + p.id + '_foto', p.foto, 'poli', { compact: true, box: 'w-32 h-[72px]' })}
+          </div></div>`
+      }).join('') || cmsEmpty('poliklinik')}</div>`;
   }
 
   if (id == 'layanan') {
@@ -1345,6 +1387,11 @@ function cmsImgClear(name) {
   if (name == 'c:favicon') applyFavicon();
   cmsRenderTab();
   toast('Gambar dihapus');
+}
+function cmsFilterPoli(q) {
+  CMS_POLI_Q = q;
+  const t = q.trim().toLowerCase();
+  document.querySelectorAll('.cms-poli').forEach(r => { r.style.display = !t || r.dataset.q.includes(t) ? '' : 'none' });
 }
 function cmsFilterDokter(q) {
   CMS_DOK_Q = q;
@@ -1580,7 +1627,8 @@ function pubBuildPayload() {
   const p = { version: 1, generatedAt: new Date().toISOString(), cms: clone(db.cms) };
   delete p.cms.info;                                   // catatan internal dashboard
   PUB_COLL.forEach(k => { p[k] = clone(db[k] || []) });
-  p.poli = db.poli.filter(x => x.status != 'Nonaktif').map(x => ({ id: x.id, nama: x.nama, status: x.status || 'Aktif' }));
+  p.poli = db.poli.filter(x => x.status != 'Nonaktif' && x.tampil !== false).map(x => ({ id: x.id, nama: x.nama, status: x.status || 'Aktif', lokasi: x.lokasi || '', deskripsi: x.deskripsi || '', icon: x.icon || '', foto: x.foto || '' }));
+  p.poli_hidden = db.poli.filter(x => x.tampil === false).map(x => x.id);
   p.dokter = db.dokter.filter(d => d.tampil !== false).map(d => ({ id: d.id, nama: d.nama, spesialis: d.spesialis, poli: d.poli, jadwal: d.jadwal, foto: d.foto || '' }));
   p.dokter_hidden = db.dokter.filter(d => d.tampil === false).map(d => d.id);
   return p;
@@ -1617,13 +1665,13 @@ async function pubPrepared() {
     files[path] = m[2]; obj[key] = path;
   };
   await conv(json.cms, 'logo'); await conv(json.cms, 'favicon');
-  for (const [col, key] of [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto']]) for (const it of json[col]) await conv(it, key);
+  for (const [col, key] of [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto'], ['poli', 'foto']]) for (const it of json[col]) await conv(it, key);
   return { json, files };
 }
 const pubUsedPaths = json => {
   const used = new Set(), pre = GHCFG.imgDir + '/', add = v => { if (typeof v == 'string' && v.startsWith(pre)) used.add(v) };
   add(json.cms.logo); add(json.cms.favicon);
-  [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto']].forEach(([c, k]) => json[c].forEach(it => add(it[k])));
+  [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto'], ['poli', 'foto']].forEach(([c, k]) => json[c].forEach(it => add(it[k])));
   return used;
 };
 
@@ -1647,9 +1695,12 @@ function pubApplyRemote(j) {
   PUB_COLL.forEach(k => { if (Array.isArray(j[k])) db[k] = j[k] });
   db.cms = { ...db.cms, ...(j.cms || {}) };           // catatan internal (info) tetap lokal
   (j.poli || []).forEach(p => {
+    const v = { nama: p.nama, tampil: true };
+    ['status', 'lokasi', 'deskripsi', 'icon', 'foto'].forEach(k => { if (p[k] !== undefined) v[k] = p[k] });
     const x = db.poli.find(y => y.id == p.id);
-    if (x) { x.nama = p.nama; x.status = p.status || x.status } else db.poli.push({ id: p.id, kode: 'PL' + pad(p.id), nama: p.nama, lokasi: '', status: p.status || 'Aktif' });
+    if (x) Object.assign(x, v); else db.poli.push({ id: p.id, kode: 'PL' + pad(p.id), lokasi: '', status: 'Aktif', ...v });
   });
+  (j.poli_hidden || []).forEach(id => { const x = db.poli.find(y => y.id == id); if (x) x.tampil = false });
   (j.dokter || []).forEach(d => {
     const x = db.dokter.find(y => y.id == d.id), v = { nama: d.nama, spesialis: d.spesialis, poli: d.poli, jadwal: d.jadwal, foto: d.foto || '', tampil: true };
     if (x) Object.assign(x, v); else db.dokter.push({ id: d.id, sip: '', ...v });
@@ -1783,7 +1834,7 @@ function publishPage() {
       <button type="button" class="${btn('slate')}" onclick="pubDownload()">Unduh site.json (manual)</button>
     </div>
     <div class="grid md:grid-cols-2 gap-3 text-sm">
-      <div class="${cmsBox}"><h4 class="font-semibold">Ikut diterbitkan (publik)</h4><ul class="list-disc pl-5 text-slate-500 space-y-0.5"><li>Seluruh konten CMS: info RS, kontak, jam, statistik, tentang, menu, hero, layanan, promo, berita, testimoni, kebijakan &amp; syarat</li><li>Gambar CMS (logo, favicon, hero, promo, berita, foto dokter)</li><li>Dokter yang berstatus <i>Tampil</i> (nama, spesialis, poli, jadwal, foto) dan poli aktif</li></ul></div>
+      <div class="${cmsBox}"><h4 class="font-semibold">Ikut diterbitkan (publik)</h4><ul class="list-disc pl-5 text-slate-500 space-y-0.5"><li>Seluruh konten CMS: info RS, kontak, jam, statistik, tentang, menu, hero, layanan, promo, berita, testimoni, kebijakan &amp; syarat</li><li>Gambar CMS (logo, favicon, hero, promo, berita, foto dokter &amp; poliklinik)</li><li>Dokter yang berstatus <i>Tampil</i> (nama, spesialis, poli, jadwal, foto) dan poliklinik aktif yang <i>Tampil</i> (nama, lokasi, deskripsi, ikon/foto)</li></ul></div>
       <div class="${cmsBox}"><h4 class="font-semibold text-red-600">TIDAK pernah dikirim</h4><ul class="list-disc pl-5 text-slate-500 space-y-0.5"><li>Data pasien, RME, pendaftaran, tagihan, kamar, lab, radiologi, farmasi, dll.</li><li>No. SIP dokter, kata sandi pengguna, catatan internal dashboard</li><li>Token GitHub Anda (hanya di tab ini, hilang saat tab ditutup)</li></ul></div>
     </div>
     <div><h4 class="font-semibold mb-1">Log</h4><pre id="pub-log" class="text-xs bg-slate-900 text-slate-100 rounded-lg p-3 min-h-[5rem] max-h-64 overflow-auto whitespace-pre-wrap">${esc(PUB.log.join('\n'))}</pre></div></div>`;
@@ -1792,7 +1843,7 @@ function publishPage() {
 
 // ===== MAKE FUNCTIONS GLOBALLY ACCESSIBLE =====
 Object.assign(window, { cmsAdmin, switchCmsTab, saveCmsFormData, saveCmsAdmin, cmsClose, addCmsItem, deleteCmsItem, moveCmsItem,
-  cmsImgUpload, cmsImgClear, cmsFilterDokter, cmsLegalPreview, cmsLegalReset, doTokenLogin, pubRun, pubPull, pubDownload, publishPage, inbox, inboxTerima, inboxTolak, inboxHapus, inboxBaca });
+  cmsImgUpload, cmsImgClear, cmsFilterDokter, cmsFilterPoli, cmsLegalPreview, cmsLegalReset, doTokenLogin, pubRun, pubPull, pubDownload, publishPage, inbox, inboxTerima, inboxTolak, inboxHapus, inboxBaca });
 
 // ===== EVENT LISTENERS =====
 addEventListener('hashchange', () => authed() && shell());

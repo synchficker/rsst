@@ -108,3 +108,13 @@ Catatan: alamat lama `index-public.html` tidak ada lagi. Jika pernah dibagikan/d
 
 ## Catatan keamanan yang tersisa
 Modul klinis tetap prototipe di localStorage; Tailwind/Font Awesome dimuat dari CDN; semua yang diterbitkan (dan riwayat commit-nya) bersifat publik. Detail di `PANDUAN-GITHUB-PAGES.md`.
+
+---
+# Pembaruan v6 - Section Poliklinik di website
+
+- **Section baru "Poliklinik"** tepat di bawah Layanan dan di atas Dokter, dengan pola yang sama seperti Dokter: kartu (foto atau ikon, nama, lokasi, deskripsi, jumlah dokter), **pencarian**, **filter lokasi**, dan tombol *Lihat Semua / Tampilkan Lebih Sedikit* (awal 8 kartu).
+- Interaksi: **Buat Janji** pada kartu mengisi pilihan poli di formulir pendaftaran; **"N dokter"** menyaring bagian Dokter berdasarkan poli tersebut.
+- **CMS → tab Poliklinik**: judul & subjudul section, serta per poli: foto (800 × 450 px, maks. 3 MB, otomatis dipotong 16:9 & dikompres), ikon (opsional; otomatis dari nama bila kosong), deskripsi singkat, dan tampil/sembunyikan. Ada pencarian dan keterangan ukuran gambar. Poli berstatus Nonaktif atau disembunyikan tidak tampil di website maupun di pilihan formulir.
+- **Menu**: "Poliklinik" ditambahkan di menu atas dan menu bawah (default). Untuk data lama ditambahkan otomatis **sekali** di bawah Layanan; bila Anda menghapusnya, tidak ditambahkan lagi.
+- **Publikasi GitHub**: poliklinik ikut diterbitkan hanya dengan field publik (id, nama, status, lokasi, deskripsi, ikon, foto); foto menjadi file di `assets/img/`; poli tersembunyi tercatat sebagai `poli_hidden`. Ambil data terbit ikut menyinkronkannya.
+- Perapian visual: warna latar section diselang-seling (Layanan abu-abu, Poliklinik putih, Dokter abu-abu, Promo putih).

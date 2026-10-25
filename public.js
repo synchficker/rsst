@@ -37,7 +37,9 @@
     mengapa_judul: 'Mengapa Memilih Kami?',
     kebijakan_judul: 'Kebijakan Privasi', kebijakan_isi: '', kebijakan_update: '', kebijakan_aktif: true,
     syarat_judul: 'Syarat & Ketentuan', syarat_isi: '', syarat_update: '', syarat_aktif: true,
-    form_mode: 'auto', form_endpoint: ''
+    form_mode: 'auto', form_endpoint: '',
+    poli_judul: 'Poliklinik & Unit Layanan',
+    poli_subjudul: 'Pilih poliklinik sesuai kebutuhan Anda, lihat lokasinya, dan daftar kunjungan dengan mudah.'
   };
 
   // Data contoh bila admin SIMRS belum pernah dibuka
@@ -610,9 +612,10 @@
   const specIcon = sp => { const f = SPEC_ICON.find(([re]) => re.test(sp || '')); return f ? f[1] : 'fa-user-md'; };
   const GRAD = ['from-blue-400 to-blue-600', 'from-blue-500 to-blue-700', 'from-sky-400 to-sky-600', 'from-indigo-400 to-indigo-600'];
 
-  const getPoliList = () => arr(DB.poli) || DEFAULT_POLI;
+  const getPoliAll = () => arr(DB.poli) || DEFAULT_POLI;                                              // untuk mencari nama poli (termasuk yang disembunyikan)
+  const getPoliList = () => getPoliAll().filter(p => p && p.status !== 'Nonaktif' && p.tampil !== false);  // poli yang tampil di website & formulir
   const getDokterList = () => (arr(DB.dokter) || DEFAULT_DOKTER).filter(d => d && d.tampil !== false);
-  const poliName = id => { const p = getPoliList().find(x => String(x.id) === String(id)); return p ? p.nama : 'Poli Umum'; };
+  const poliName = id => { const p = getPoliAll().find(x => String(x.id) === String(id)); return p ? p.nama : 'Poli Umum'; };
 
   function renderDokter() {
     const box = $('#dokter-list');
@@ -668,12 +671,81 @@
     observeReveals();
   }
 
+
+  // ===== POLIKLINIK =====
+  const poliState = { q: '', lok: '', all: false };
+  const poliIcon = p => {
+    if (p.icon) return iconClass(p.icon);
+    const f = SPEC_ICON.find(([re]) => re.test(p.nama || ''));
+    return f ? f[1] : 'fa-house-medical';
+  };
+
+  function renderPoliklinik() {
+    const box = $('#poli-list');
+    if (!box) return;
+    const c = CMS_NOW;
+    if (c.poli_judul != null) setText('poli-judul', c.poli_judul);
+    if (c.poli_subjudul != null) setText('poli-subjudul', c.poli_subjudul);
+    const all = getPoliList();
+    toggleSection(box, all.length > 0, 'poliklinik');
+
+    const lokSel = $('#poli-lokasi');
+    if (lokSel) {
+      const loks = [...new Set(all.map(p => (p.lokasi || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+      lokSel.innerHTML = '<option value="">Semua Lokasi</option>' + loks.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join('');
+      if (loks.includes(poliState.lok)) lokSel.value = poliState.lok; else poliState.lok = '';
+      lokSel.classList.toggle('hidden', loks.length < 2);
+    }
+
+    const dokters = getDokterList();
+    const q = poliState.q.trim().toLowerCase();
+    const filtered = all.filter(p =>
+      (!poliState.lok || (p.lokasi || '').trim() === poliState.lok) &&
+      (!q || [p.nama, p.lokasi, p.deskripsi].join(' ').toLowerCase().includes(q)))
+      .slice().sort((a, b) => String(a.nama).localeCompare(String(b.nama), 'id'));
+    const filtering = !!(q || poliState.lok);
+    const LIMIT = 8;
+    const shown = filtering || poliState.all ? filtered : filtered.slice(0, LIMIT);
+
+    box.innerHTML = shown.map((p, i) => {
+      const n = dokters.filter(d => String(d.poli) === String(p.id)).length, img = safeImg(p.foto);
+      return `
+      <div class="poli-card bg-white rounded-2xl shadow-lg overflow-hidden reveal flex flex-col border border-slate-100">
+        <div class="h-40 bg-gradient-to-br ${GRAD[i % GRAD.length]} flex items-center justify-center relative overflow-hidden">
+          <i class="fas ${poliIcon(p)} text-5xl text-white/80"></i>
+          ${img ? `<img src="${esc(img)}" alt="${esc(p.nama)}" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" onerror="this.remove()">` : ''}
+        </div>
+        <div class="p-5 flex flex-col flex-1">
+          <h3 class="font-bold text-slate-800 mb-1">${esc(p.nama)}</h3>
+          ${p.lokasi ? `<p class="text-xs text-slate-500 mb-2"><i class="fas fa-map-marker-alt mr-1 text-blue-500"></i>${esc(p.lokasi)}</p>` : ''}
+          ${p.deskripsi ? `<p class="text-slate-600 text-sm line-clamp-2 mb-2">${esc(p.deskripsi)}</p>` : ''}
+          <div class="mt-auto pt-3 flex items-center justify-between gap-2">
+            ${n ? `<button type="button" data-poli-dokter="${esc(p.nama)}" class="text-xs text-blue-600 font-semibold hover:text-blue-700"><i class="fas fa-user-md mr-1"></i>${n} dokter <i class="fas fa-chevron-right text-[9px] ml-0.5"></i></button>`
+        : '<span class="text-xs text-slate-400"><i class="fas fa-user-md mr-1"></i>Sesuai jadwal</span>'}
+            <a href="#janji" data-poli-pick="${esc(p.id)}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs font-semibold transition shrink-0"><i class="fas fa-calendar-check mr-1"></i>Buat Janji</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    const empty = $('#poli-kosong');
+    if (empty) empty.classList.toggle('hidden', filtered.length > 0);
+    const tg = $('#poli-toggle');
+    if (tg) {
+      tg.parentElement.classList.toggle('hidden', !(!filtering && filtered.length > LIMIT));
+      tg.innerHTML = poliState.all
+        ? 'Tampilkan Lebih Sedikit <i class="fas fa-arrow-up ml-2"></i>'
+        : `Lihat Semua Poliklinik (${filtered.length}) <i class="fas fa-arrow-right ml-2"></i>`;
+    }
+    observeReveals();
+  }
+
   // ===== FORM: opsi poli & dokter =====
   function fillPoli() {
     const sel = $('#ap-poli');
     if (!sel) return;
     const cur = sel.value;
-    const list = getPoliList().filter(p => p.status !== 'Nonaktif')
+    const list = getPoliList()
       .slice().sort((a, b) => String(a.nama).localeCompare(String(b.nama), 'id'));
     sel.innerHTML = '<option value="">-- Pilih Poli --</option>' +
       list.map(p => `<option value="${esc(p.id)}">${esc(p.nama)}</option>`).join('');
@@ -747,6 +819,7 @@
     renderPromo(arr(DB.cms_promo));
     renderBerita(arr(DB.cms_berita));
     renderTestimoni(arr(DB.cms_testimoni));
+    renderPoliklinik();
     renderDokter();
     fillPoli();
     renderStats(cms);
@@ -825,7 +898,7 @@
     spy = new IntersectionObserver(es => es.forEach(en => {
       if (en.isIntersecting) $$('.nav-link').forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + en.target.id));
     }), { rootMargin: '-45% 0px -50% 0px' });
-    const ids = new Set(['beranda', 'tentang', 'layanan', 'dokter', 'promo', 'janji', 'berita', 'kontak']);
+    const ids = new Set(['beranda', 'tentang', 'layanan', 'poliklinik', 'dokter', 'promo', 'janji', 'berita', 'kontak']);
     $$('.nav-link').forEach(l => { const h = l.getAttribute('href') || ''; if (/^#[\w-]+$/.test(h)) ids.add(h.slice(1)); });
     ids.forEach(id => { const el = document.getElementById(id); if (el) spy.observe(el); });
   }
@@ -984,6 +1057,24 @@
         if (k && !k.value.trim()) k.value = 'Promo: ' + promo.dataset.promo;
         return;
       }
+      const pp = e.target.closest('[data-poli-pick]');
+      if (pp) {
+        const poli = $('#ap-poli');
+        if (poli && Array.from(poli.options).some(o => o.value === String(pp.dataset.poliPick))) {
+          poli.value = pp.dataset.poliPick;
+          fillDokterOptions('');
+        }
+        return;
+      }
+      const pd = e.target.closest('[data-poli-dokter]');
+      if (pd) {
+        const cari = $('#dokter-cari');
+        docState.q = pd.dataset.poliDokter; docState.sp = ''; docState.all = false;
+        if (cari) cari.value = docState.q;
+        renderDokter();
+        const sec = $('#dokter'); if (sec) sec.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+        return;
+      }
       const dk = e.target.closest('[data-dokter-id]');
       if (dk) {
         const poli = $('#ap-poli');
@@ -999,6 +1090,12 @@
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeBerita(); closeLegal(); } });
     window.addEventListener('hashchange', handleHash);
+
+    const pc = $('#poli-cari'), pl = $('#poli-lokasi'), pt = $('#poli-toggle');
+    let tp;
+    if (pc) pc.addEventListener('input', () => { clearTimeout(tp); tp = setTimeout(() => { poliState.q = pc.value; renderPoliklinik(); }, 150); });
+    if (pl) pl.addEventListener('change', () => { poliState.lok = pl.value; renderPoliklinik(); });
+    if (pt) pt.addEventListener('click', () => { poliState.all = !poliState.all; renderPoliklinik(); if (!poliState.all) $('#poliklinik').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' }); });
 
     const cari = $('#dokter-cari'), sp = $('#dokter-spesialis'), tg = $('#dokter-toggle');
     let tmr;

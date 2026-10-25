@@ -342,6 +342,7 @@
           <a href="#beranda" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Beranda</a>
           <a href="#tentang" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Tentang</a>
           <a href="#layanan" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Layanan</a>
+          <a href="#poliklinik" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Poliklinik</a>
           <a href="#dokter" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Dokter</a>
           <a href="#promo" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Promo</a>
           <a href="#berita" class="nav-link text-slate-700 hover:text-blue-600 font-medium transition">Berita</a>
@@ -375,6 +376,7 @@
           <a href="#beranda" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Beranda</a>
           <a href="#tentang" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Tentang</a>
           <a href="#layanan" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Layanan</a>
+          <a href="#poliklinik" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Poliklinik</a>
           <a href="#dokter" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Dokter</a>
           <a href="#promo" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Promo</a>
           <a href="#berita" class="text-slate-700 hover:text-blue-600 font-medium py-2 border-b">Berita</a>
@@ -587,8 +589,44 @@
     </div>
   </section>
 
+  <!-- Poliklinik Section -->
+  <section id="poliklinik" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12 reveal">
+        <span class="inline-block bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold mb-4">
+          POLIKLINIK KAMI
+        </span>
+        <h2 id="poli-judul" class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Poliklinik &amp; Unit Layanan</h2>
+        <p id="poli-subjudul" class="text-slate-600 max-w-2xl mx-auto">
+          Pilih poliklinik sesuai kebutuhan Anda, lihat lokasinya, dan daftar kunjungan dengan mudah.
+        </p>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-3 md:items-center md:justify-center mb-8 reveal">
+        <div class="relative md:w-80">
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input id="poli-cari" type="search" placeholder="Cari poliklinik / lokasi..."
+                 class="w-full border border-slate-300 rounded-full pl-11 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none">
+        </div>
+        <select id="poli-lokasi" aria-label="Filter lokasi"
+                class="border border-slate-300 rounded-full px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white">
+          <option value="">Semua Lokasi</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="poli-list">
+        <!-- Kartu poliklinik dimuat dinamis -->
+      </div>
+
+      <p id="poli-kosong" class="hidden text-center text-slate-500 mt-6">Poliklinik tidak ditemukan. Coba kata kunci lain.</p>
+      <div class="text-center mt-10">
+        <button type="button" id="poli-toggle" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition shadow-lg shadow-blue-200">Lihat Semua Poliklinik <i class="fas fa-arrow-right ml-2"></i></button>
+      </div>
+    </div>
+  </section>
+
   <!-- Dokter Section -->
-  <section id="dokter" class="py-20">
+  <section id="dokter" class="py-20 bg-slate-50">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12 reveal">
         <span class="inline-block bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-semibold mb-4">
@@ -624,7 +662,7 @@
   </section>
 
   <!-- Promo Section -->
-  <section id="promo" class="py-20 bg-slate-50">
+  <section id="promo" class="py-20 bg-white">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12 reveal">
         <span class="inline-block bg-red-100 text-red-700 px-4 py-1 rounded-full text-sm font-semibold mb-4">
@@ -1075,6 +1113,7 @@
           <ul id="footer-links" class="space-y-2 text-slate-400 text-sm">
             <li><a href="#beranda" class="hover:text-blue-400 transition">Beranda</a></li>
             <li><a href="#layanan" class="hover:text-blue-400 transition">Layanan</a></li>
+            <li><a href="#poliklinik" class="hover:text-blue-400 transition">Poliklinik</a></li>
             <li><a href="#dokter" class="hover:text-blue-400 transition">Dokter</a></li>
             <li><a href="#promo" class="hover:text-blue-400 transition">Promo</a></li>
             <li><a href="#berita" class="hover:text-blue-400 transition">Berita</a></li>
