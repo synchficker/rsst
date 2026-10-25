@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-10-25T15:49:54.616Z",
+ "generatedAt": "2026-10-25T15:52:30.416Z",
  "cms": {
   "nama": "RS Sehat Sentosa",
   "tagline": "Melayani dengan Hati",
@@ -410,6 +410,15 @@
  ],
  "poli": [
   {
+   "id": 1,
+   "nama": "Poli Umum (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
    "id": 2,
    "nama": "Poli Anak (Reguler)",
    "status": "Aktif",
@@ -554,6 +563,15 @@
    "foto": ""
   },
   {
+   "id": 18,
+   "nama": "Poli Onkologi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
    "id": 19,
    "nama": "Poli Ginjal (Reguler)",
    "status": "Aktif",
@@ -693,6 +711,15 @@
    "nama": "Poli Mata (Eksekutif)",
    "status": "Aktif",
    "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 35,
+   "nama": "Poli Kulit (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
    "deskripsi": "",
    "icon": "",
    "foto": ""
