@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-10-25T14:36:55.662Z",
+ "generatedAt": "2026-10-25T15:45:11.158Z",
  "cms": {
   "nama": "RS Sehat Sentosa",
   "tagline": "Melayani dengan Hati",
@@ -408,5 +408,850 @@
    "aktif": true
   }
  ],
- "poli_hidden": []
+ "poli": [
+  {
+   "id": 2,
+   "nama": "Poli Anak (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 3,
+   "nama": "Poli Penyakit Dalam (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 4,
+   "nama": "Poli Bedah (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 5,
+   "nama": "Poli Kandungan (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 6,
+   "nama": "Poli Jantung (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 7,
+   "nama": "Poli Saraf (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 8,
+   "nama": "Poli THT (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 9,
+   "nama": "Poli Mata (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 10,
+   "nama": "Poli Kulit (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 11,
+   "nama": "Poli Gigi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 12,
+   "nama": "Poli Paru (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 13,
+   "nama": "Poli Ortopedi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 14,
+   "nama": "Poli Urologi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 15,
+   "nama": "Poli Jiwa (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 16,
+   "nama": "Poli Gizi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 17,
+   "nama": "Poli Rehab Medik (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 19,
+   "nama": "Poli Ginjal (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 20,
+   "nama": "Poli Bedah Saraf (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 21,
+   "nama": "Poli Anestesi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 22,
+   "nama": "Poli Patologi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 23,
+   "nama": "Poli Radiologi (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 24,
+   "nama": "Poli Endokrin (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 25,
+   "nama": "Poli Geriatri (Reguler)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 26,
+   "nama": "Poli Umum (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 27,
+   "nama": "Poli Anak (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 28,
+   "nama": "Poli Penyakit Dalam (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 29,
+   "nama": "Poli Bedah (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 30,
+   "nama": "Poli Kandungan (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 31,
+   "nama": "Poli Jantung (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 32,
+   "nama": "Poli Saraf (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 33,
+   "nama": "Poli THT (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 34,
+   "nama": "Poli Mata (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 36,
+   "nama": "Poli Gigi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 37,
+   "nama": "Poli Paru (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 38,
+   "nama": "Poli Ortopedi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 39,
+   "nama": "Poli Urologi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 40,
+   "nama": "Poli Jiwa (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 41,
+   "nama": "Poli Gizi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 42,
+   "nama": "Poli Rehab Medik (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 43,
+   "nama": "Poli Onkologi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 44,
+   "nama": "Poli Ginjal (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 45,
+   "nama": "Poli Bedah Saraf (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 46,
+   "nama": "Poli Anestesi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 47,
+   "nama": "Poli Patologi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 48,
+   "nama": "Poli Radiologi (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung C Lt. 3",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 49,
+   "nama": "Poli Endokrin (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung A Lt. 1",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 50,
+   "nama": "Poli Geriatri (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 2",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  },
+  {
+   "id": 51,
+   "nama": "Poli Cinta (Eksekutif)",
+   "status": "Aktif",
+   "lokasi": "Gedung B Lt. 5",
+   "deskripsi": "",
+   "icon": "",
+   "foto": ""
+  }
+ ],
+ "poli_hidden": [],
+ "dokter": [
+  {
+   "id": 1,
+   "nama": "dr. Nina Lestari",
+   "spesialis": "Umum",
+   "poli": 1,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 2,
+   "nama": "dr. Siti Putri, Sp.Anak",
+   "spesialis": "Anak",
+   "poli": 4,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 3,
+   "nama": "dr. Rina Hidayat",
+   "spesialis": "Penyakit Dalam",
+   "poli": 7,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 4,
+   "nama": "dr. Sri Firmansyah, Sp.Bedah",
+   "spesialis": "Bedah",
+   "poli": 10,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 5,
+   "nama": "dr. Joko Kusuma",
+   "spesialis": "Kandungan",
+   "poli": 13,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 6,
+   "nama": "dr. Lina Wibowo, Sp.Jantung",
+   "spesialis": "Jantung",
+   "poli": 16,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 7,
+   "nama": "dr. Dian Saputra",
+   "spesialis": "Saraf",
+   "poli": 19,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 8,
+   "nama": "dr. Bayu Santoso, Sp.THT",
+   "spesialis": "THT",
+   "poli": 22,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 9,
+   "nama": "dr. Agus Nugroho",
+   "spesialis": "Mata",
+   "poli": 25,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 10,
+   "nama": "dr. Andi Wijaya, Sp.Kulit",
+   "spesialis": "Kulit",
+   "poli": 28,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 11,
+   "nama": "dr. Hadi Rahayu",
+   "spesialis": "Gigi",
+   "poli": 31,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 12,
+   "nama": "dr. Ani Pratama, Sp.Paru",
+   "spesialis": "Paru",
+   "poli": 34,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 13,
+   "nama": "dr. Fajar Setiawan",
+   "spesialis": "Ortopedi",
+   "poli": 37,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 14,
+   "nama": "dr. Yoga Lestari, Sp.Urologi",
+   "spesialis": "Urologi",
+   "poli": 40,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 15,
+   "nama": "dr. Budi Putri",
+   "spesialis": "Jiwa",
+   "poli": 43,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 16,
+   "nama": "dr. Dewi Hidayat, Sp.Gizi",
+   "spesialis": "Gizi",
+   "poli": 46,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 17,
+   "nama": "dr. Eko Firmansyah",
+   "spesialis": "Rehab Medik",
+   "poli": 49,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 18,
+   "nama": "dr. Wati Kusuma, Sp.Onkologi",
+   "spesialis": "Onkologi",
+   "poli": 2,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 19,
+   "nama": "dr. Rudi Wibowo",
+   "spesialis": "Ginjal",
+   "poli": 5,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 20,
+   "nama": "dr. Maya Saputra, Sp.Bedah",
+   "spesialis": "Bedah Saraf",
+   "poli": 8,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 21,
+   "nama": "dr. Nina Santoso",
+   "spesialis": "Anestesi",
+   "poli": 11,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 22,
+   "nama": "dr. Siti Nugroho, Sp.Patologi",
+   "spesialis": "Patologi",
+   "poli": 14,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 23,
+   "nama": "dr. Rina Wijaya",
+   "spesialis": "Radiologi",
+   "poli": 17,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 24,
+   "nama": "dr. Sri Rahayu, Sp.Endokrin",
+   "spesialis": "Endokrin",
+   "poli": 20,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 25,
+   "nama": "dr. Joko Pratama",
+   "spesialis": "Geriatri",
+   "poli": 23,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 26,
+   "nama": "dr. Lina Setiawan, Sp.Umum",
+   "spesialis": "Umum",
+   "poli": 26,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 27,
+   "nama": "dr. Dian Lestari",
+   "spesialis": "Anak",
+   "poli": 29,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 28,
+   "nama": "dr. Bayu Putri, Sp.Penyakit",
+   "spesialis": "Penyakit Dalam",
+   "poli": 32,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 29,
+   "nama": "dr. Agus Hidayat",
+   "spesialis": "Bedah",
+   "poli": 35,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 30,
+   "nama": "dr. Andi Firmansyah, Sp.Kandungan",
+   "spesialis": "Kandungan",
+   "poli": 38,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 31,
+   "nama": "dr. Hadi Kusuma",
+   "spesialis": "Jantung",
+   "poli": 41,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 32,
+   "nama": "dr. Ani Wibowo, Sp.Saraf",
+   "spesialis": "Saraf",
+   "poli": 44,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 33,
+   "nama": "dr. Fajar Saputra",
+   "spesialis": "THT",
+   "poli": 47,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 34,
+   "nama": "dr. Yoga Santoso, Sp.Mata",
+   "spesialis": "Mata",
+   "poli": 50,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 35,
+   "nama": "dr. Budi Nugroho",
+   "spesialis": "Kulit",
+   "poli": 3,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 36,
+   "nama": "dr. Dewi Wijaya, Sp.Gigi",
+   "spesialis": "Gigi",
+   "poli": 6,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 37,
+   "nama": "dr. Eko Rahayu",
+   "spesialis": "Paru",
+   "poli": 9,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 38,
+   "nama": "dr. Wati Pratama, Sp.Ortopedi",
+   "spesialis": "Ortopedi",
+   "poli": 12,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 39,
+   "nama": "dr. Rudi Setiawan",
+   "spesialis": "Urologi",
+   "poli": 15,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 40,
+   "nama": "dr. Maya Lestari, Sp.Jiwa",
+   "spesialis": "Jiwa",
+   "poli": 18,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 41,
+   "nama": "dr. Nina Putri",
+   "spesialis": "Gizi",
+   "poli": 21,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 42,
+   "nama": "dr. Siti Hidayat, Sp.Rehab",
+   "spesialis": "Rehab Medik",
+   "poli": 24,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 43,
+   "nama": "dr. Rina Firmansyah",
+   "spesialis": "Onkologi",
+   "poli": 27,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 44,
+   "nama": "dr. Sri Kusuma, Sp.Ginjal",
+   "spesialis": "Ginjal",
+   "poli": 30,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 45,
+   "nama": "dr. Joko Wibowo",
+   "spesialis": "Bedah Saraf",
+   "poli": 33,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 46,
+   "nama": "dr. Lina Saputra, Sp.Anestesi",
+   "spesialis": "Anestesi",
+   "poli": 36,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 47,
+   "nama": "dr. Dian Santoso",
+   "spesialis": "Patologi",
+   "poli": 39,
+   "jadwal": "Sen-Jum 10-14",
+   "foto": ""
+  },
+  {
+   "id": 48,
+   "nama": "dr. Bayu Nugroho, Sp.Radiologi",
+   "spesialis": "Radiologi",
+   "poli": 42,
+   "jadwal": "Sen-Rab 08-12",
+   "foto": ""
+  },
+  {
+   "id": 49,
+   "nama": "dr. Agus Wijaya",
+   "spesialis": "Endokrin",
+   "poli": 45,
+   "jadwal": "Sel-Kam 13-17",
+   "foto": ""
+  },
+  {
+   "id": 50,
+   "nama": "dr. Andi Rahayu, Sp.Geriatri",
+   "spesialis": "Geriatri",
+   "poli": 48,
+   "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 51,
+   "nama": "dr. Eka Budiyarti, Sp.Cin",
+   "spesialis": "Cinta",
+   "poli": 40,
+   "jadwal": "Sab-Min 09-15",
+   "foto": ""
+  }
+ ],
+ "dokter_hidden": []
 }
