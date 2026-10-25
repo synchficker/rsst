@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-10-25T13:38:10.442Z",
+ "generatedAt": "2026-10-25T13:44:11.454Z",
  "cms": {
   "nama": "RS Sehat Sentosa",
   "tagline": "Melayani dengan Hati",
@@ -53,7 +53,7 @@
    "cta1_link": "#dokter",
    "cta2_text": "Lihat Layanan",
    "cta2_link": "#layanan",
-   "warna": "blue",
+   "warna": "emerald",
    "aktif": true,
    "gambar": ""
   },
