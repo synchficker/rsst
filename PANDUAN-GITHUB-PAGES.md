@@ -7,6 +7,7 @@ GitHub Pages hanya menyajikan file statis, sehingga:
 |---|---|
 | **Website publik** (`index.html`) | Membaca `data/site.json` + gambar di `assets/img/` dari repositori |
 | **Panel admin** (`simrs.html`) | Login dengan **GitHub Personal Access Token**. Hanya akun yang punya akses **tulis** ke repositori ini yang bisa masuk |
+| **Inbox pendaftaran & pesan** | Disimpan di **Server Inbox** (Cloudflare Worker + D1) - lihat `PANDUAN-INBOX-ONLINE.md` |
 | **Publikasi** | Menu *Publikasi GitHub* mengirim konten publik ke repositori dalam **satu commit** → Pages memperbarui situs ±1–2 menit |
 | **Data klinis** (pasien, RME, tagihan, dll.) | Tetap di browser admin (localStorage). **Tidak pernah dikirim ke GitHub** |
 
@@ -42,11 +43,14 @@ Tombol **Pratinjau draft** membuka `index.html?preview=1` untuk melihat perubaha
 Login dengan token → bila data terbit di GitHub berbeda dari data lokal, aplikasi menawarkan **Ambil data terbit** (atau pakai tombol *Ambil data terbit* di menu Publikasi). Konten CMS ikut ter-sinkron; data klinis tidak.
 
 ## Formulir pendaftaran & kontak
-Situs statis tidak punya server, jadi data pengunjung tidak bisa masuk ke inbox admin. Atur di **CMS → Kontak & Sosmed → Pengiriman Formulir**:
-- **Otomatis** (bawaan): situs terbit → pesan terisi dikirim lewat **WhatsApp** RS.
-- **WhatsApp**: selalu lewat WhatsApp (pastikan nomor WhatsApp RS terisi).
-- **Endpoint formulir**: kirim JSON ke layanan seperti Formspree/Web3Forms (URL harus `https`).
-- **Inbox lokal**: hanya untuk demo (tidak sampai ke admin bila pengunjung beda browser).
+Agar **Daftar Sekarang** dan **Kirim Pesan** langsung masuk ke menu **Inbox Website** (menunggu persetujuan admin), siapkan **Server Inbox** gratis mengikuti **PANDUAN-INBOX-ONLINE.md** (±15 menit), lalu isi alamatnya di **CMS → Kontak & Sosmed → Pengiriman Formulir**.
+
+Pilihan **Cara pengiriman**:
+- **Otomatis** (bawaan): Server Inbox bila alamat terisi → uji lokal memakai inbox lokal → selain itu WhatsApp.
+- **Server Inbox**: selalu ke Panel Admin (disarankan).
+- **WhatsApp**, **Endpoint pihak ketiga** (Formspree dll.), **Inbox lokal** (hanya uji coba).
+
+> Tanpa Server Inbox, situs di GitHub Pages tidak bisa menyimpan kiriman pengunjung ke Panel Admin (browser pengunjung dan admin berbeda), sehingga form diarahkan ke WhatsApp agar pesan pasien tidak hilang.
 
 ## Keamanan - yang perlu Anda tahu
 - Login token melindungi **panel dan penerbitan**: tanpa token dengan izin tulis, tidak ada yang bisa mengubah situs. Kode `simrs.html` sendiri tetap publik (wajar untuk situs statis).

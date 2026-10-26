@@ -5,7 +5,7 @@
    1. ?preview=1  -> draft CMS di localStorage browser admin (pratinjau sebelum terbit)
    2. data/site.json (hasil "Publikasikan" dari panel admin) -> yang dilihat pengunjung di GitHub Pages
    3. localStorage (mode lokal / file:// untuk uji coba)
-   Form pendaftaran/kontak: WhatsApp, endpoint formulir (mis. Formspree), atau inbox lokal (demo).
+   Form pendaftaran/kontak: server inbox (masuk ke Panel Admin), WhatsApp, endpoint formulir, atau inbox lokal (uji).
    Tidak pernah menulis ke database admin.
    ======================================== */
 (function () {
@@ -37,7 +37,7 @@
     mengapa_judul: 'Mengapa Memilih Kami?',
     kebijakan_judul: 'Kebijakan Privasi', kebijakan_isi: '', kebijakan_update: '', kebijakan_aktif: true,
     syarat_judul: 'Syarat & Ketentuan', syarat_isi: '', syarat_update: '', syarat_aktif: true,
-    form_mode: 'auto', form_endpoint: '',
+    form_mode: 'auto', form_endpoint: '', inbox_url: '',
     poli_judul: 'Poliklinik & Unit Layanan',
     poli_subjudul: 'Pilih poliklinik sesuai kebutuhan Anda, lihat lokasinya, dan daftar kunjungan dengan mudah.'
   };
@@ -925,11 +925,30 @@
     setTimeout(() => { b.disabled = false; }, ms);
   }
 
-  // Cara pengiriman formulir. 'auto': website terbit (GitHub Pages) -> WhatsApp; mode lokal/uji -> inbox lokal.
+  // Cara pengiriman formulir.
+  // 'auto': server inbox bila URL diisi (masuk ke Panel Admin) -> uji lokal (localhost/file) memakai inbox lokal
+  //         -> situs publik tanpa server inbox memakai WhatsApp (agar pesan pasien tidak hilang).
+  const inboxUrl = () => { const u = String(CMS_NOW.inbox_url || '').trim().replace(/\/+$/, ''); return /^https:\/\//i.test(u) ? u : ''; };
+  const isLocalHost = () => location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   function formMode() {
     const m = String(CMS_NOW.form_mode || 'auto');
     if (m !== 'auto') return m;
-    return SOURCE === 'published' ? 'whatsapp' : 'lokal';
+    if (inboxUrl()) return 'inbox';
+    return isLocalHost() ? 'lokal' : 'whatsapp';
+  }
+  async function postInbox(data) {
+    const base = inboxUrl();
+    if (!base) throw new Error('Server inbox belum diatur. Silakan hubungi kami via telepon atau WhatsApp.');
+    let r;
+    try {
+      r = await fetch(base + '/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+    } catch (e) {
+      throw new Error('Tidak dapat terhubung ke server. Periksa koneksi Anda atau hubungi kami di ' + (CMS_NOW.telepon || 'telepon rumah sakit') + '.');
+    }
+    let j = {};
+    try { j = await r.json(); } catch (e) { /* bukan JSON */ }
+    if (!r.ok || !j.ok) throw new Error(j.error || 'Pengiriman gagal (HTTP ' + r.status + '). Silakan hubungi kami via telepon.');
+    return j;
   }
   function openWhatsApp(text) {
     const wa = digits(CMS_NOW.whatsapp);
@@ -977,6 +996,11 @@
             if (!openWhatsApp(text)) throw new Error('Nomor WhatsApp rumah sakit belum diatur. Silakan hubungi kami via telepon.');
             busy(ap); done();
             toast('Membuka WhatsApp... Kirim pesan yang sudah terisi untuk menyelesaikan pendaftaran Anda.', 9000);
+          } else if (mode === 'inbox') {
+            busy(ap, 4000);
+            const j = await postInbox({ jenis: 'pendaftaran', nama, telp, poliId: +f.poli.value || 0, poli: poliTxt, dokterId: +f.dokter.value || 0, dokter: dokTxt, tgl: f.tgl.value, keluhan });
+            done();
+            toast(`Pendaftaran terkirim! Kode booking Anda: ${j.kode}. Petugas kami akan memeriksa dan mengonfirmasi jadwal melalui telepon/WhatsApp.`, 10000);
           } else if (mode === 'endpoint') {
             busy(ap, 4000);
             await postEndpoint({ jenis: 'pendaftaran', rumah_sakit: CMS_NOW.nama, nama, telepon: telp, poli: poliTxt, dokter: dokTxt, tanggal: f.tgl.value, keluhan });
@@ -1021,6 +1045,11 @@
             if (!openWhatsApp(text)) throw new Error('Nomor WhatsApp rumah sakit belum diatur. Silakan hubungi kami via telepon atau email.');
             busy(ct); ct.reset();
             toast('Membuka WhatsApp... Kirim pesan yang sudah terisi agar sampai ke kami.');
+          } else if (mode === 'inbox') {
+            busy(ct, 4000);
+            await postInbox({ jenis: 'pesan', nama, email, subjek, pesan });
+            ct.reset();
+            toast('Terima kasih! Pesan Anda telah kami terima dan akan segera ditindaklanjuti.');
           } else if (mode === 'endpoint') {
             busy(ct, 4000);
             await postEndpoint({ jenis: 'pesan', rumah_sakit: CMS_NOW.nama, nama, email, subjek, pesan });

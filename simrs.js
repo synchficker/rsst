@@ -198,6 +198,7 @@ function seed() {
       // Pengiriman formulir website: auto | whatsapp | endpoint | lokal
       form_mode: 'auto',
       form_endpoint: '',
+      inbox_url: '',
 
       // Section Poliklinik di website
       poli_judul: 'Poliklinik & Unit Layanan',
@@ -1053,13 +1054,15 @@ function cmsTab(id) {
     ${cmsField('c:tiktok', 'TikTok URL', c.tiktok, { ph: 'https://tiktok.com/@...' })}
     <hr class="my-4 border-slate-200 dark:border-slate-700">
     <h4 class="font-semibold text-sm">Pengiriman Formulir Website</h4>
-    <p class="text-xs text-slate-500">Website di GitHub Pages bersifat statis (tanpa server), sehingga pendaftaran/pesan pengunjung tidak bisa disimpan ke inbox admin. Pilih cara pengirimannya:</p>
+    <p class="text-xs text-slate-500">Menentukan ke mana pendaftaran online &amp; pesan dari website dikirim. Agar langsung masuk ke menu <b>Inbox Website</b> (dengan persetujuan admin) di situs GitHub Pages, siapkan <b>Server Inbox</b> (gratis) - lihat <b>PANDUAN-INBOX-ONLINE.md</b> - lalu isi alamatnya di bawah dan terbitkan.</p>
+    ${cmsField('c:inbox_url', 'Alamat Server Inbox (https)', c.inbox_url, { ph: 'https://inbox-rs.nama-akun.workers.dev', hint: 'Alamat Cloudflare Worker dari panduan. Kosongkan bila belum disiapkan.' })}
     <label class="block"><span class="text-xs text-slate-500 dark:text-slate-400">Cara pengiriman</span><select name="c:form_mode" class="${inp}">
-      <option value="auto" ${(c.form_mode || 'auto') == 'auto' ? 'selected' : ''}>Otomatis (situs terbit → WhatsApp; uji lokal → inbox lokal)</option>
+      <option value="auto" ${(c.form_mode || 'auto') == 'auto' ? 'selected' : ''}>Otomatis: Server Inbox bila alamat diisi; uji lokal → inbox lokal; selain itu → WhatsApp</option>
+      <option value="inbox" ${c.form_mode == 'inbox' ? 'selected' : ''}>Server Inbox → masuk ke menu Inbox Website, menunggu persetujuan admin (disarankan)</option>
       <option value="whatsapp" ${c.form_mode == 'whatsapp' ? 'selected' : ''}>WhatsApp (pesan terisi dikirim ke nomor RS di atas)</option>
-      <option value="endpoint" ${c.form_mode == 'endpoint' ? 'selected' : ''}>Endpoint formulir (Formspree, Web3Forms, dll.)</option>
-      <option value="lokal" ${c.form_mode == 'lokal' ? 'selected' : ''}>Inbox lokal (hanya demo; tidak sampai ke admin bila pengunjung beda browser)</option></select></label>
-    ${cmsField('c:form_endpoint', 'URL endpoint formulir (https)', c.form_endpoint, { ph: 'https://formspree.io/f/xxxxxxx', hint: 'Dipakai bila cara pengiriman = Endpoint. Data dikirim sebagai JSON via POST dan harus https.' })}</div>`;
+      <option value="endpoint" ${c.form_mode == 'endpoint' ? 'selected' : ''}>Endpoint formulir pihak ketiga (Formspree, Web3Forms, dll.)</option>
+      <option value="lokal" ${c.form_mode == 'lokal' ? 'selected' : ''}>Inbox lokal (hanya uji coba; tidak sampai ke admin bila pengunjung beda browser)</option></select></label>
+    ${cmsField('c:form_endpoint', 'URL endpoint formulir pihak ketiga (https)', c.form_endpoint, { ph: 'https://formspree.io/f/xxxxxxx', hint: 'Hanya dipakai bila cara pengiriman = Endpoint. Data dikirim sebagai JSON via POST.' })}</div>`;
   if (id == 'jam') return H('Jam Operasional') + `<div class="space-y-3">
     ${cmsField('c:jam_senin_jumat', 'Senin - Jumat', c.jam_senin_jumat)}
     ${cmsField('c:jam_sabtu', 'Sabtu', c.jam_sabtu)}
@@ -1438,13 +1441,50 @@ function cmsLegalReset(key) {
 
 
 // ===== INBOX WEBSITE (pendaftaran online & pesan dari halaman publik) =====
+// Sumber data: (1) SERVER INBOX (Cloudflare Worker + D1) - kiriman pengunjung situs publik di mana pun,
+// (2) inbox LOKAL (browser ini) - hanya untuk uji coba. Keduanya digabung dalam satu daftar.
 const INBOX_KEY = 'simrs_inbox', MSG_KEY = 'simrs_pesan';
 const lsRead = k => { try { const v = JSON.parse(localStorage.getItem(k)); return Array.isArray(v) ? v : [] } catch (e) { return [] } };
 const lsWrite = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true } catch (e) { toast('Gagal menyimpan inbox', 1); return false } };
-const inboxCount = () => lsRead(INBOX_KEY).filter(x => x.status == 'Baru').length + lsRead(MSG_KEY).filter(x => !x.dibaca).length;
 const digitsOnly = s => String(s || '').replace(/\D/g, '');
 const waNum = s => { let d = digitsOnly(s); if (d.startsWith('0')) d = '62' + d.slice(1); return d };
 const fmtDt = iso => { const d = new Date(iso); return isNaN(d) ? '-' : d.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) };
+
+const inboxUrl = () => { const u = String((db.cms || {}).inbox_url || '').trim().replace(/\/+$/, ''); return /^https:\/\//i.test(u) ? u : '' };
+const INB = { reg: [], msg: [], err: '', at: 0, loading: false, remote: false };
+const byNewest = (a, b) => String(b.dibuat).localeCompare(String(a.dibuat));
+
+function inboxLocalInit() { INB.reg = lsRead(INBOX_KEY).slice().sort(byNewest); INB.msg = lsRead(MSG_KEY).slice().sort(byNewest) }
+const inboxCount = () => {
+  if (!INB.at) inboxLocalInit();
+  return INB.reg.filter(x => x.status == 'Baru').length + INB.msg.filter(x => !x.dibaca).length
+};
+
+async function inboxApi(method, path, body) {
+  let r;
+  try {
+    r = await fetch(inboxUrl() + path, { method, cache: 'no-store', headers: Object.assign({ Authorization: 'Bearer ' + ghTok() }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined });
+  } catch (e) { throw new Error('Tidak dapat terhubung ke server inbox.') }
+  let j = {}; try { j = await r.json() } catch (e) { }
+  if (!r.ok) throw new Error(j.error || 'Server inbox: HTTP ' + r.status);
+  return j;
+}
+const remReg = x => ({ id: 'r' + x.id, rid: x.id, remote: true, kode: x.kode, nama: x.nama, telp: x.telp, poliId: x.poliId, poli: x.poli, dokterId: x.dokterId, dokter: x.dokter, tgl: x.tgl, keluhan: x.keluhan, status: x.status, antrian: x.antrian || '', dibuat: x.dibuat });
+const remMsg = x => ({ id: 'r' + x.id, rid: x.id, remote: true, nama: x.nama, email: x.email, subjek: x.subjek, pesan: x.pesan, dibuat: x.dibuat, dibaca: !!x.dibaca });
+
+async function inboxRefresh() {
+  const reg = lsRead(INBOX_KEY), msg = lsRead(MSG_KEY);
+  INB.err = ''; INB.remote = false;
+  if (inboxUrl()) {
+    if (!GH_ON || !ghTok()) INB.err = 'Login dengan token GitHub untuk memuat inbox dari server.';
+    else try {
+      const j = await inboxApi('GET', '/inbox');
+      (j.items || []).forEach(x => (x.jenis == 'pendaftaran' ? reg : msg).push(x.jenis == 'pendaftaran' ? remReg(x) : remMsg(x)));
+      INB.remote = true;
+    } catch (e) { INB.err = e.message }
+  }
+  INB.reg = reg.sort(byNewest); INB.msg = msg.sort(byNewest); INB.at = Date.now();
+}
 
 function refreshBadge() {
   const b = $('#inbox-badge');
@@ -1454,39 +1494,75 @@ function refreshBadge() {
   b.classList.toggle('hidden', !n);
 }
 
+// Muat ulang dari server/lokal, perbarui badge dan (bila sedang dibuka) halaman Inbox
+async function inboxPoll(manual) {
+  if (INB.loading) return;
+  INB.loading = true;
+  try { await inboxRefresh() } finally { INB.loading = false }
+  refreshBadge();
+  if (authed() && (location.hash || '').slice(2) == 'inbox') inboxRender();
+  if (manual) toast(INB.err ? INB.err : 'Inbox diperbarui', !!INB.err);
+}
+
 function inbox(tab) {
   const st = ST.inbox = ST.inbox || { tab: 'reg' };
   if (tab) st.tab = tab;
-  const regs = lsRead(INBOX_KEY).slice().reverse(), msgs = lsRead(MSG_KEY).slice().reverse();
+  inboxRender();      // tampilkan data yang sudah ada lebih dulu
+  inboxPoll();        // lalu segarkan dari server
+}
+
+function inboxRender() {
+  if (!INB.at) inboxLocalInit();
+  const st = ST.inbox = ST.inbox || { tab: 'reg' }, regs = INB.reg, msgs = INB.msg;
   const nReg = regs.filter(x => x.status == 'Baru').length, nMsg = msgs.filter(x => !x.dibaca).length;
   const tb = (id, label, n) => `<button type="button" class="${cmsTabCls(st.tab == id)}" onclick="inbox('${id}')">${label}${n ? ` <span class="ml-1 px-1.5 rounded-full bg-red-500 text-white text-[10px]">${n}</span>` : ''}</button>`;
   const th = 'py-2 pr-3 whitespace-nowrap text-slate-500', td = 'py-2 pr-3 align-top';
+  const src = x => x.remote ? '<span class="ml-1 px-1 rounded bg-blue-100 text-blue-700 text-[10px]">Server</span>' : '<span class="ml-1 px-1 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 text-[10px]">Lokal</span>';
   let body;
   if (st.tab == 'reg') {
     body = regs.length ? `<div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="border-b border-slate-200 dark:border-slate-700"><th class="${th}">Kode</th><th class="${th}">Masuk</th><th class="${th}">Pasien</th><th class="${th}">Poli / Dokter</th><th class="${th}">Kunjungan</th><th class="${th}">Keluhan</th><th class="${th}">Status</th><th></th></tr></thead><tbody>${regs.map(x => `<tr class="border-b border-slate-100 dark:border-slate-700 ${x.status == 'Baru' ? 'bg-amber-50 dark:bg-amber-950/30' : ''}">
-      <td class="${td} font-mono text-xs">${esc(x.kode)}</td><td class="${td} whitespace-nowrap text-xs">${fmtDt(x.dibuat)}</td>
+      <td class="${td} font-mono text-xs">${esc(x.kode)}${src(x)}</td><td class="${td} whitespace-nowrap text-xs">${fmtDt(x.dibuat)}</td>
       <td class="${td}"><div class="font-medium">${esc(x.nama)}</div><a class="text-emerald-600 text-xs" target="_blank" rel="noopener" href="https://wa.me/${waNum(x.telp)}">${esc(x.telp)} ↗ WA</a></td>
       <td class="${td}">${esc(x.poli)}${x.dokter ? `<div class="text-xs text-slate-500">${esc(x.dokter)}</div>` : ''}</td>
       <td class="${td} whitespace-nowrap">${esc(x.tgl)}${x.antrian ? `<div class="text-xs text-slate-500">Antrian ${esc(x.antrian)}</div>` : ''}</td>
       <td class="${td} max-w-xs">${esc(x.keluhan || '-')}</td><td class="${td}">${badge(x.status)}</td>
-      <td class="${td} whitespace-nowrap text-right">${x.status == 'Baru' ? `<button class="text-emerald-600 mr-2 font-medium" onclick="inboxTerima(${x.id})">Terima</button><button class="text-amber-600 mr-2" onclick="inboxTolak(${x.id})">Tolak</button>` : ''}<button class="text-red-600" onclick="inboxHapus('${INBOX_KEY}',${x.id})">Hapus</button></td></tr>`).join('')}</tbody></table></div>`
+      <td class="${td} whitespace-nowrap text-right">${x.status == 'Baru' ? `<button class="text-emerald-600 mr-2 font-medium" onclick="inboxTerima('${x.id}')">Terima</button><button class="text-amber-600 mr-2" onclick="inboxTolak('${x.id}')">Tolak</button>` : ''}<button class="text-red-600" onclick="inboxHapus('${INBOX_KEY}','${x.id}')">Hapus</button></td></tr>`).join('')}</tbody></table></div>`
       : '<p class="py-8 text-center text-slate-400">Belum ada pendaftaran online dari website.</p>';
   } else {
     body = msgs.length ? msgs.map(x => `<div class="border-t border-slate-100 dark:border-slate-700 py-3 ${x.dibaca ? '' : 'bg-amber-50 dark:bg-amber-950/30 px-3 rounded'}">
-      <div class="flex flex-wrap justify-between gap-2"><div><span class="font-semibold">${esc(x.subjek)}</span> <span class="text-xs text-slate-500">dari ${esc(x.nama)} · ${esc(x.email)} · ${fmtDt(x.dibuat)}</span></div>
-      <div class="whitespace-nowrap"><a class="text-blue-600 mr-3" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Re: ' + x.subjek)}" onclick="inboxBaca(${x.id},true)">Balas</a><button class="text-slate-500 mr-3" onclick="inboxBaca(${x.id})">${x.dibaca ? 'Tandai belum dibaca' : 'Tandai dibaca'}</button><button class="text-red-600" onclick="inboxHapus('${MSG_KEY}',${x.id})">Hapus</button></div></div>
+      <div class="flex flex-wrap justify-between gap-2"><div><span class="font-semibold">${esc(x.subjek)}</span>${src(x)} <span class="text-xs text-slate-500">dari ${esc(x.nama)} · ${esc(x.email)} · ${fmtDt(x.dibuat)}</span></div>
+      <div class="whitespace-nowrap"><a class="text-blue-600 mr-3" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Re: ' + x.subjek)}" onclick="inboxBaca('${x.id}',true)">Balas</a><button class="text-slate-500 mr-3" onclick="inboxBaca('${x.id}')">${x.dibaca ? 'Tandai belum dibaca' : 'Tandai dibaca'}</button><button class="text-red-600" onclick="inboxHapus('${MSG_KEY}','${x.id}')">Hapus</button></div></div>
       <p class="mt-1 whitespace-pre-wrap">${esc(x.pesan)}</p></div>`).join('')
       : '<p class="py-8 text-center text-slate-400">Belum ada pesan dari website.</p>';
   }
-  $('#main').innerHTML = `<div class="${card} p-5"><div class="flex flex-wrap items-center justify-between gap-2 mb-4"><div class="flex gap-2">${tb('reg', 'Pendaftaran Online', nReg)}${tb('pesan', 'Pesan Masuk', nMsg)}</div><span class="text-xs text-slate-400">Hanya menampung form dari mode <b>Inbox lokal</b> (browser yang sama). Di GitHub Pages pendaftaran dikirim via WhatsApp/endpoint.</span></div>${body}</div>`;
+  const status = INB.err ? `<span class="text-red-600" role="alert">${esc(INB.err)}</span>`
+    : INB.remote ? `<span class="text-emerald-600">● Server inbox terhubung · ${fmtDt(new Date(INB.at).toISOString())}</span>`
+      : inboxUrl() ? 'Memuat dari server...' : 'Inbox lokal (browser ini)';
+  const notice = inboxUrl() ? '' : `<div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs">Server inbox belum diatur, sehingga kiriman pengunjung dari website tidak sampai ke sini (hanya inbox lokal di browser ini). Siapkan server inbox (gratis) mengikuti <b>PANDUAN-INBOX-ONLINE.md</b>, lalu isi alamatnya di <b>CMS → Kontak &amp; Sosmed → Pengiriman Formulir</b> dan terbitkan.</div>`;
+  $('#main').innerHTML = `<div class="${card} p-5"><div class="flex flex-wrap items-center justify-between gap-2 mb-4"><div class="flex gap-2">${tb('reg', 'Pendaftaran Online', nReg)}${tb('pesan', 'Pesan Masuk', nMsg)}</div><div class="flex items-center gap-3 text-xs text-slate-400">${status}<button type="button" class="${btn('slate')}" onclick="inboxPoll(true)">↻ Muat ulang</button></div></div>${notice}${body}</div>`;
   refreshBadge();
 }
 
-// Terima pendaftaran online -> buat/cocokkan pasien + catat di Pendaftaran & Rawat Jalan
-function inboxTerima(id) {
-  const list = lsRead(INBOX_KEY), it = list.find(x => x.id == id);
-  if (!it) return;
+// Ubah status di server (bila kiriman dari server) atau di inbox lokal
+async function inboxPatch(it, patch, isMsg) {
+  if (it.remote) await inboxApi('PATCH', '/inbox/' + it.rid, patch);
+  else {
+    const key = isMsg ? MSG_KEY : INBOX_KEY, list = lsRead(key), x = list.find(y => y.id == it.id);
+    if (x) { Object.assign(x, patch); lsWrite(key, list) }
+  }
+  Object.assign(it, patch);
+}
+
+// Terima pendaftaran online (persetujuan admin) -> buat/cocokkan pasien + catat di Pendaftaran & Rawat Jalan
+async function inboxTerima(id) {
+  const it = INB.reg.find(x => x.id == id);
+  if (!it || it.status != 'Baru') return;
   if (!db.poli.length || !db.dokter.length) return toast('Data Poli/Dokter kosong. Tambahkan dulu di menu Manajemen.', 1);
+  const poli = db.poli.find(x => x.id == it.poliId) || db.poli.find(x => x.nama == it.poli) || db.poli[0];
+  const dok = db.dokter.find(x => x.id == it.dokterId) || db.dokter.find(x => x.poli == poli.id) || db.dokter[0];
+  const antrian = 'A-' + pad(db.pendaftaran.filter(x => x.tgl == it.tgl).length + 1);
+  try { await inboxPatch(it, { status: 'Diterima', antrian }) }      // server dulu: bila gagal, tidak ada data ganda saat dicoba ulang
+  catch (e) { return toast('Gagal memperbarui status di server: ' + e.message, 1) }
   let p = db.pasien.find(x => digitsOnly(x.telp) && digitsOnly(x.telp) == digitsOnly(it.telp) && String(x.nama).toLowerCase() == String(it.nama).toLowerCase());
   const baru = !p;
   if (!p) {
@@ -1494,33 +1570,41 @@ function inboxTerima(id) {
     p = { id: i, no_rm: 'RM-' + (1000 + i), nama: it.nama, nik: '', tgl_lahir: '', jk: '', alamat: '(Daftar online - lengkapi data pasien)', telp: it.telp, penjamin: 'Umum' };
     db.pasien.push(p);
   }
-  const poli = db.poli.find(x => x.id == it.poliId) || db.poli.find(x => x.nama == it.poli) || db.poli[0];
-  const dok = db.dokter.find(x => x.id == it.dokterId) || db.dokter.find(x => x.poli == poli.id) || db.dokter[0];
-  const row = { id: nid('pendaftaran'), tgl: it.tgl, pasien: p.id, poli: poli.id, dokter: dok.id, antrian: 'A-' + pad(db.pendaftaran.filter(x => x.tgl == it.tgl).length + 1), status: 'Terdaftar' };
+  const row = { id: nid('pendaftaran'), tgl: it.tgl, pasien: p.id, poli: poli.id, dokter: dok.id, antrian, status: 'Terdaftar' };
   db.pendaftaran.push(row);
   sync('pendaftaran', null, row);
-  if (!save()) return;
-  it.status = 'Diterima'; it.antrian = row.antrian;
-  lsWrite(INBOX_KEY, list);
-  toast(`Diterima - antrian ${row.antrian}${baru ? ` · pasien baru ${p.no_rm} (lengkapi data di Data Pasien)` : ''}`);
-  inbox();
+  if (!save()) {                                                       // gagal simpan lokal -> kembalikan status agar bisa dicoba lagi
+    db.pendaftaran.pop(); if (baru) db.pasien.pop();
+    try { await inboxPatch(it, { status: 'Baru', antrian: '' }) } catch (e) { }
+    return inboxRender();
+  }
+  toast(`Diterima - antrian ${antrian}${baru ? ` · pasien baru ${p.no_rm} (lengkapi data di Data Pasien)` : ''}`);
+  inboxPoll();
 }
 function inboxTolak(id) {
-  ask('Tolak pendaftaran online ini?', () => {
-    const list = lsRead(INBOX_KEY), it = list.find(x => x.id == id);
-    if (it) { it.status = 'Ditolak'; lsWrite(INBOX_KEY, list) }
-    inbox();
+  ask('Tolak pendaftaran online ini?', async () => {
+    const it = INB.reg.find(x => x.id == id);
+    if (!it) return;
+    try { await inboxPatch(it, { status: 'Ditolak' }) } catch (e) { toast(e.message, 1) }
+    inboxPoll();
   });
 }
 function inboxHapus(key, id) {
-  ask('Hapus data ini dari inbox?', () => { lsWrite(key, lsRead(key).filter(x => x.id != id)); inbox() });
+  ask('Hapus data ini dari inbox?', async () => {
+    const isMsg = key == MSG_KEY, it = (isMsg ? INB.msg : INB.reg).find(x => x.id == id);
+    if (!it) return;
+    try {
+      if (it.remote) await inboxApi('DELETE', '/inbox/' + it.rid);
+      else lsWrite(key, lsRead(key).filter(x => x.id != it.id));
+    } catch (e) { toast(e.message, 1) }
+    inboxPoll();
+  });
 }
-function inboxBaca(id, forceRead) {
-  const list = lsRead(MSG_KEY), it = list.find(x => x.id == id);
+async function inboxBaca(id, forceRead) {
+  const it = INB.msg.find(x => x.id == id);
   if (!it) return;
-  it.dibaca = forceRead ? true : !it.dibaca;
-  lsWrite(MSG_KEY, list);
-  if (!forceRead) inbox(); else refreshBadge();
+  try { await inboxPatch(it, { dibaca: forceRead ? true : !it.dibaca }, true) } catch (e) { toast(e.message, 1) }
+  if (!forceRead) inboxRender(); else refreshBadge();
 }
 
 // ===== HOSTING GITHUB PAGES: LOGIN TOKEN & PUBLIKASI =====
@@ -1592,7 +1676,7 @@ async function doTokenLogin(e) {
     sessionStorage.setItem('simrs_gh_branch', GHCFG.branch || repo.default_branch || 'main');
     sessionStorage.setItem('simrs_auth', '1');
     sessionStorage.setItem('simrs_user', login ? '@' + login : 'admin');
-    idleReset(); shell(); ghCheckSync();
+    idleReset(); shell(); ghCheckSync(); inboxPoll();
   } catch (err) {
     if (++_fails >= 5) { _lock = Date.now() + 30000; _fails = 0 }
     show(err.message || 'Login gagal.');
@@ -1824,6 +1908,7 @@ function publishPage() {
   $('#main').innerHTML = `<div class="${card} p-5 space-y-5">
     <div><h2 class="text-xl font-bold">Publikasi ke GitHub Pages</h2>
     <p class="text-slate-500">Konten publik diterbitkan ke repositori sebagai <code>${esc(GHCFG.dataPath)}</code> dan <code>${esc(GHCFG.imgDir)}/</code>. Pengunjung website membaca file tersebut.</p></div>
+    ${GH_ON && !inboxUrl() ? `<div class="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm"><b>Server Inbox belum diatur.</b> Pendaftaran &amp; pesan pengunjung belum bisa masuk ke menu <i>Inbox Website</i> (pengunjung diarahkan ke WhatsApp). Ikuti <b>PANDUAN-INBOX-ONLINE.md</b>, lalu isi alamatnya di CMS → Kontak &amp; Sosmed → Pengiriman Formulir.</div>` : ''}
     ${GH_ON ? `<table class="w-full text-left">${row('Repositori', `<b>${esc(GHCFG.owner)}/${esc(GHCFG.repo)}</b>`)}${row('Branch', esc(ghBranch() || '(default)'))}${row('Alamat situs', `<a class="text-blue-600 underline" target="_blank" rel="noopener" href="${esc(site)}">${esc(site)}</a>`)}${row('Login sebagai', esc(sessionStorage.getItem('simrs_user') || '-'))}${row('Terakhir terbit', '<span id="pub-last">-</span>')}${row('Status', '<span id="pub-status">memeriksa...</span>')}</table>`
       : `<div class="rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-4 text-sm">Mode GitHub belum aktif. Isi <code>owner</code> dan <code>repo</code> di <code>config.js</code>, atau buka panel ini dari <code>https://&lt;owner&gt;.github.io/&lt;repo&gt;/simrs.html</code> (terdeteksi otomatis). Lihat <b>PANDUAN-GITHUB-PAGES.md</b>.</div>`}
     <div class="flex flex-wrap gap-2">
@@ -1858,8 +1943,11 @@ addEventListener('keydown', e => {
 // Data baru dari website publik (tab lain) -> perbarui badge / halaman inbox
 addEventListener('storage', e => {
   if (!authed() || (e.key != INBOX_KEY && e.key != MSG_KEY)) return;
-  (location.hash || '#/dash').slice(2) == 'inbox' ? inbox() : refreshBadge();
+  inboxPoll();
 });
 
+// Periksa kiriman baru dari server inbox tiap 60 detik (saat sesi aktif & tab terlihat)
+setInterval(() => { if (authed() && inboxUrl() && !document.hidden) inboxPoll() }, 60000);
+
 applyFavicon();
-authed() ? shell() : login();
+authed() ? (shell(), inboxPoll()) : login();

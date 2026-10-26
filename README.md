@@ -14,8 +14,10 @@ Sistem Informasi Manajemen Rumah Sakit (SIMRS) dengan tampilan publik modern dan
 ├── data/site.json          → Data konten publik yang dibaca website (diperbarui lewat menu Publikasi)
 ├── assets/img/             → Gambar hasil unggahan CMS (dibuat otomatis saat publikasi)
 ├── 404.html, .nojekyll     → Berkas pendukung GitHub Pages
+├── inbox-worker/           → Server Inbox (Cloudflare Worker + skema D1) - TIDAK dipakai GitHub Pages, di-deploy terpisah
 ├── data-sample.json        → Data contoh untuk import (opsional)
 ├── PANDUAN-GITHUB-PAGES.md → Langkah hosting, token, keamanan, pemecahan masalah
+├── PANDUAN-INBOX-ONLINE.md → Menyiapkan server inbox agar pendaftaran/pesan masuk ke Panel Admin
 ├── DESIGN-GUIDE.md         → Panduan palet & aturan desain
 ├── CHANGELOG-FIX.md        → Catatan perbaikan & fitur per versi
 └── README.md               → Dokumentasi ini

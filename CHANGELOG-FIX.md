@@ -118,3 +118,22 @@ Modul klinis tetap prototipe di localStorage; Tailwind/Font Awesome dimuat dari 
 - **Menu**: "Poliklinik" ditambahkan di menu atas dan menu bawah (default). Untuk data lama ditambahkan otomatis **sekali** di bawah Layanan; bila Anda menghapusnya, tidak ditambahkan lagi.
 - **Publikasi GitHub**: poliklinik ikut diterbitkan hanya dengan field publik (id, nama, status, lokasi, deskripsi, ikon, foto); foto menjadi file di `assets/img/`; poli tersembunyi tercatat sebagai `poli_hidden`. Ambil data terbit ikut menyinkronkannya.
 - Perapian visual: warna latar section diselang-seling (Layanan abu-abu, Poliklinik putih, Dokter abu-abu, Promo putih).
+
+---
+# Pembaruan v7 - Pendaftaran & pesan langsung masuk ke Panel Admin
+
+## Penyebab sebelumnya
+Pada v5, mode "Otomatis" mengirim form ke **WhatsApp** begitu `data/site.json` ada. Alasannya: inbox lama tersimpan di localStorage (per browser), sehingga kiriman pengunjung tidak mungkin terlihat di browser admin saat situs di-hosting statis.
+
+## Solusi
+- **Server Inbox** (`inbox-worker/`): Cloudflare Worker + database D1 (gratis). Menerima kiriman publik (`POST /submit`) dan melayani admin (`GET/PATCH/DELETE /inbox`).
+  - Admin = pemilik token GitHub dengan izin **tulis** ke repositori (diverifikasi ke GitHub; token yang sama dengan login panel).
+  - Validasi ketat, CORS terbatas ke `ALLOWED_ORIGINS`, honeypot, 5 kiriman/10 menit/perangkat, batas harian, IP hanya berupa hash sementara, data lama dihapus otomatis (`RETENTION_DAYS`, bawaan 180 hari).
+- **Website**: mode baru *Server Inbox* → pendaftaran/pesan langsung tersimpan di server; pengunjung menerima kode booking. Galat server/jaringan ditampilkan jelas (dengan nomor telepon RS).
+- **Panel Admin → Inbox Website**: menggabungkan kiriman Server + Lokal; **Terima** (persetujuan admin: membuat/mencocokkan pasien + pendaftaran + antrian), **Tolak**, **Hapus**, **Tandai dibaca**, **Muat ulang**; badge sidebar diperbarui otomatis tiap 60 detik. Status di server diperbarui lebih dulu sehingga bila server gagal tidak ada data ganda.
+- **CMS → Kontak & Sosmed**: kolom *Alamat Server Inbox* + pilihan cara pengiriman (Otomatis / Server Inbox / WhatsApp / Endpoint / Lokal). Halaman Publikasi memperingatkan bila server inbox belum diatur.
+- **Mode Otomatis (baru)**: alamat server terisi → Server Inbox; belum terisi di localhost/file lokal → inbox lokal (seperti versi awal); belum terisi di situs online → WhatsApp (agar pesan pasien tidak hilang diam-diam).
+- Dokumen: `PANDUAN-INBOX-ONLINE.md` (langkah pasang, variabel, keamanan, privasi, pemecahan masalah).
+
+## Catatan
+Data kontak/keluhan pengunjung kini tersimpan di Cloudflare: sesuaikan Kebijakan Privasi dan minta peninjauan penasihat hukum. Notifikasi otomatis ke pasien tidak tersedia; petugas menghubungi pasien.

@@ -1,0 +1,18 @@
+# Opsional: dipakai bila Anda deploy dengan CLI (npx wrangler deploy).
+# Bila memakai dashboard Cloudflare, abaikan file ini.
+name = "inbox-rs"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "inbox_rs"
+database_id = "ISI_DENGAN_ID_DATABASE_D1"
+
+[vars]
+ALLOWED_ORIGINS = "https://OWNER.github.io"   # asal website & panel admin; pisahkan dengan koma bila lebih dari satu
+GITHUB_OWNER = "OWNER"
+GITHUB_REPO = "REPO"
+# ADMIN_USERS = "akun-admin1,akun-admin2"     # opsional: batasi akun GitHub yang boleh membuka inbox
+# RETENTION_DAYS = "180"                      # opsional: lama penyimpanan data (hari), default 180
+# MAX_PER_DAY = "500"                         # opsional: batas kiriman per 24 jam
