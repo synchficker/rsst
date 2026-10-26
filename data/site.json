@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-10-26T18:54:56.818Z",
+ "generatedAt": "2026-10-26T19:05:02.291Z",
  "cms": {
   "nama": "RS Sehat Sentosa",
   "tagline": "Melayani dengan Hati",
@@ -859,15 +859,6 @@
    "deskripsi": "",
    "icon": "",
    "foto": ""
-  },
-  {
-   "id": 51,
-   "nama": "Poli Cinta (Eksekutif)",
-   "status": "Aktif",
-   "lokasi": "Gedung B Lt. 5",
-   "deskripsi": "",
-   "icon": "",
-   "foto": ""
   }
  ],
  "poli_hidden": [],
@@ -1270,14 +1261,6 @@
    "spesialis": "Geriatri",
    "poli": 48,
    "jadwal": "Jum-Sab 09-13",
-   "foto": ""
-  },
-  {
-   "id": 51,
-   "nama": "dr. Eka Budiyarti, Sp.Cin",
-   "spesialis": "Cinta",
-   "poli": 40,
-   "jadwal": "Sab-Min 09-15",
    "foto": ""
   }
  ],
