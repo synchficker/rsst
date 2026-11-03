@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-03T19:19:11.889Z",
+ "generatedAt": "2026-11-03T19:24:17.857Z",
  "cms": {
   "nama": "RS Siraja Tega",
   "tagline": "Melayani secara Profesional & Komersial",
@@ -18,13 +18,13 @@
   "jam_sabtu": "08.00 - 15.00",
   "jam_minggu": "10.00 - 17.00",
   "jam_igd": "24 Jam",
-  "stat_tenaga_medis": 150,
-  "stat_pasien_dilayani": 10000,
-  "stat_mitra": 50,
-  "stat_penghargaan": 25,
-  "tentang_sejarah": "RS Sehat Sentosa didirikan pada tahun 2000 dengan visi menjadi rumah sakit terpercaya yang melayani dengan hati.",
-  "tentang_visi": "Menjadi rumah sakit terbaik yang memberikan pelayanan kesehatan berkualitas dan terjangkau.",
-  "tentang_misi": "1. Memberikan pelayanan kesehatan terbaik\n2. Mengembangkan SDM profesional\n3. Menyediakan fasilitas modern",
+  "stat_tenaga_medis": 200,
+  "stat_pasien_dilayani": 2000,
+  "stat_mitra": 100,
+  "stat_penghargaan": 50,
+  "tentang_sejarah": "RS Siraja Tega didirikan pada tahun 2026 dengan visi menjadi rumah sakit terpercaya yang melayani secara profesionl & komersial.",
+  "tentang_visi": "Menjadi rumah sakit terbaik yang memberikan pelayanan kesehatan berkualitas dan premium.",
+  "tentang_misi": "1. Memberikan pelayanan kesehatan terbaik\n2. Mengembangkan SDM profesional\n3. Menyediakan fasilitas modern\n4. Menerapkan jiwa komersial",
   "copyright": "2026 RS Siraja Tega. All rights reserved.",
   "hero_autoplay": true,
   "hero_interval": 5,
@@ -397,7 +397,7 @@
   {
    "id": 3,
    "judul": "Pelayanan Prima",
-   "deskripsi": "Komitmen memberikan pelayanan terbaik dengan penuh kasih sayang",
+   "deskripsi": "Komitmen memberikan pelayanan terbaik dan profesionalitas",
    "icon": "fa-heart",
    "aktif": true
   },
