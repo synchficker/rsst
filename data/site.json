@@ -1,10 +1,10 @@
 {
  "version": 1,
- "generatedAt": "2026-11-03T10:37:37.352Z",
+ "generatedAt": "2026-11-03T19:10:43.457Z",
  "cms": {
-  "nama": "RS Sehat Sentosa",
-  "tagline": "Melayani dengan Hati",
-  "alamat": "Jl. Kesehatan No. 1, Jakarta",
+  "nama": "RS Siraja Tega",
+  "tagline": "Melayani secara Profesional & Komersial",
+  "alamat": "Jl. Herman Tajir No. 100, Curug, Bojongsari Sawangan Kota Depok",
   "telepon": "(021) 555-0100",
   "telepon_igd": "(021) 555-0119",
   "email": "info@rssehatsentosa.co.id",
@@ -25,7 +25,7 @@
   "tentang_sejarah": "RS Sehat Sentosa didirikan pada tahun 2000 dengan visi menjadi rumah sakit terpercaya yang melayani dengan hati.",
   "tentang_visi": "Menjadi rumah sakit terbaik yang memberikan pelayanan kesehatan berkualitas dan terjangkau.",
   "tentang_misi": "1. Memberikan pelayanan kesehatan terbaik\n2. Mengembangkan SDM profesional\n3. Menyediakan fasilitas modern",
-  "copyright": "2026 RS Sehat Sentosa. All rights reserved.",
+  "copyright": "2026 RS Siraja Tega. All rights reserved.",
   "hero_autoplay": true,
   "hero_interval": 5,
   "logo": "",
