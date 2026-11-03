@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-03T10:27:38.849Z",
+ "generatedAt": "2026-11-03T10:30:40.360Z",
  "cms": {
   "nama": "RS Sehat Sentosa",
   "tagline": "Melayani dengan Hati",
@@ -1261,6 +1261,14 @@
    "spesialis": "Geriatri",
    "poli": 48,
    "jadwal": "Jum-Sab 09-13",
+   "foto": ""
+  },
+  {
+   "id": 51,
+   "nama": "dr. Faturohman",
+   "spesialis": "Penyakit Luar",
+   "poli": 26,
+   "jadwal": "Sab-Min 13-15",
    "foto": ""
   }
  ],
