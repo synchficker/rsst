@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-11-19T10:20:16.838Z",
+ "generatedAt": "2026-11-19T10:23:14.504Z",
  "cms": {
   "nama": "RS Siraja Tega",
   "tagline": "Melayani secara Profesional & Komersial",
@@ -41,7 +41,7 @@
   "login_teks_tombol": "",
   "login_tampil_logo": true,
   "login_logo": "",
-  "login_tampil_info": true,
+  "login_tampil_info": false,
   "login_bg_jenis": "bawaan",
   "login_bg_warna1": "#2563eb",
   "login_bg_warna2": "#1e3a8a",
@@ -50,7 +50,7 @@
   "login_kartu": "bawaan",
   "login_sudut": "sedang",
   "login_warna_tombol": "#2563eb",
-  "login_updated": "",
+  "login_updated": "2026-11-19T10:23:05.592Z",
   "poli_judul": "Poliklinik & Unit Layanan",
   "poli_subjudul": "Pilih poliklinik sesuai kebutuhan Anda, lihat lokasinya, dan daftar kunjungan dengan mudah.",
   "kebijakan_judul": "Kebijakan Privasi",
