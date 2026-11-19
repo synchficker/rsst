@@ -25,7 +25,6 @@ Anda butuh akun Cloudflare gratis. Tampilan dashboard dapat sedikit berbeda dari
 1. **Workers & Pages → Create → Create Worker** → nama: `inbox-rs` → **Deploy**.
 2. **Edit code** → hapus isi bawaan → tempel seluruh isi `inbox-worker/worker.js` → **Deploy**.
 3. Catat alamat Worker: `https://inbox-rs.<akun-anda>.workers.dev`.
-4. Alamat Worker saat ini: https://inbox-rs.synchficker.workers.dev/
 
 ### 3. Hubungkan database & isi variabel
 Di halaman Worker → **Settings**:

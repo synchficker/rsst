@@ -137,3 +137,22 @@ Pada v5, mode "Otomatis" mengirim form ke **WhatsApp** begitu `data/site.json` a
 
 ## Catatan
 Data kontak/keluhan pengunjung kini tersimpan di Cloudflare: sesuaikan Kebijakan Privasi dan minta peninjauan penasihat hukum. Notifikasi otomatis ke pasien tidak tersedia; petugas menghubungi pasien.
+
+---
+# Pembaruan v8 - Tampilan Form Login bisa diedit dari CMS
+
+**CMS Rumah Sakit → tab "Tampilan Login"** dengan **pratinjau langsung** (berubah saat Anda mengetik):
+- **Teks**: judul, subjudul, teks tombol, catatan di bawah form; opsi menampilkan/menyembunyikan keterangan keamanan & tautan pembuatan token (mode GitHub).
+- **Logo**: tampil/sembunyi; logo khusus login (opsional, PNG ≤ 400 × 400 px, maks. 1 MB) atau otomatis memakai logo rumah sakit.
+- **Latar halaman**: bawaan / gradasi dua warna / warna polos / gambar (1920 × 1080 px, maks. 5 MB, otomatis dikompres ≤ 400 KB) dengan pelapis gelap 0-80%.
+- **Kartu & tombol**: gaya kartu (bawaan / putih solid / kaca transparan), sudut (tajam / sedang / sangat bulat), warna tombol.
+- Tombol **Kembalikan ke tampilan bawaan**. Keterangan ukuran gambar (piksel & ukuran file) tampil di tiap kolom gambar.
+
+Cara kerja & keamanan:
+- Pengaturan ikut **diterbitkan** (Publikasi GitHub; gambar menjadi file di `assets/img/`), sehingga halaman login tampil sama di perangkat admin mana pun. Perangkat yang belum pernah menyinkronkan memakai tampilan terbit; draft lokal yang lebih baru (belum diterbitkan) tetap dipakai di browser tempat Anda mengeditnya.
+- Data terbit yang tiba terlambat tidak menimpa isian yang sedang diketik.
+- Semua teks di-escape dan warna divalidasi (`#rrggbb`), jadi tidak ada injeksi HTML/CSS lewat pengaturan.
+- Peringatan **mode demo** tetap tampil dan tidak dapat disembunyikan. Fungsi login (demo maupun token), pembatasan percobaan, dan label tombol saat gagal tetap bekerja.
+- Pratinjau di editor memakai elemen inert (tanpa form bersarang).
+
+Catatan: halaman login tampil sebelum admin masuk, sehingga pengaturannya bersifat publik (ikut `data/site.json`). Jangan menaruh informasi rahasia di teks login.

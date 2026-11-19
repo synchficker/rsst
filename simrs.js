@@ -200,6 +200,9 @@ function seed() {
       form_endpoint: '',
       inbox_url: '',
 
+      // Tampilan form login panel admin
+      ...LOGIN_DEF,
+
       // Section Poliklinik di website
       poli_judul: 'Poliklinik & Unit Layanan',
       poli_subjudul: 'Pilih poliklinik sesuai kebutuhan Anda, lihat lokasinya, dan daftar kunjungan dengan mudah.',
@@ -364,6 +367,19 @@ Kami dapat mengubah ketentuan ini sewaktu-waktu. Ketentuan ini tunduk pada hukum
 
 ## 11. Kontak
 Pertanyaan tentang ketentuan ini dapat disampaikan ke {{email}} atau {{telepon}}.`;
+
+// ===== DEFAULT TAMPILAN FORM LOGIN (dapat diubah di CMS -> tab "Tampilan Login") =====
+const LOGIN_DEF = {
+  login_judul: '', login_subjudul: '', login_catatan: '', login_teks_tombol: '',      // kosong = otomatis (nama RS / mode login)
+  login_tampil_logo: true, login_logo: '', login_tampil_info: true,
+  login_bg_jenis: 'bawaan',                                                         // bawaan | gradasi | polos | gambar
+  login_bg_warna1: '#2563eb', login_bg_warna2: '#1e3a8a', login_bg_gambar: '', login_bg_overlay: '35',
+  login_kartu: 'bawaan',                                                            // bawaan | putih | kaca
+  login_sudut: 'sedang',                                                            // tajam | sedang | bulat
+  login_warna_tombol: '#2563eb',
+  login_updated: ''                                                                 // penanda perubahan (menentukan draft lokal vs data terbit)
+};
+const LOGIN_KEYS = Object.keys(LOGIN_DEF);
 
 // ===== INIT DATABASE =====
 const HERO_TONE_IDS = ['blue', 'red', 'emerald', 'indigo'];
@@ -575,17 +591,82 @@ ${body}
 }
 
 // ===== AUTH FUNCTIONS =====
+// ===== FORM LOGIN: tampilan dapat diatur dari CMS =====
+const _hex = (v, d) => /^#[0-9a-f]{6}$/i.test(String(v || '')) ? String(v) : d;
+const _cssUrl = u => 'url("' + String(u).replace(/["\\\r\n]/g, ch => encodeURIComponent(ch)) + '")';
+
+// Menghasilkan HTML halaman login. opsi.preview -> tanpa id/handler (dipakai sebagai pratinjau di editor CMS).
+function loginHtml(c0, o = {}) {
+  const c = Object.assign({}, LOGIN_DEF, c0), pv = !!o.preview, off = v => v === false || v === 'false';
+  const title = c.login_judul || c.nama, sub = c.login_subjudul || (GH_ON ? 'Panel Admin' : c.tagline);
+  const btnTxt = c.login_teks_tombol || (GH_ON ? 'Masuk dengan Token' : 'Masuk');
+  const logo = off(c.login_tampil_logo) ? '' : (cmsSafeImg(c.login_logo) || cmsSafeImg(c.logo));
+  const c1 = _hex(c.login_bg_warna1, '#2563eb'), c2 = _hex(c.login_bg_warna2, '#1e3a8a'), cb = _hex(c.login_warna_tombol, '#2563eb');
+  const ov = Math.min(80, Math.max(0, Number(c.login_bg_overlay) || 0)) / 100;
+  const img = c.login_bg_jenis == 'gambar' ? cmsSafeImg(c.login_bg_gambar) : '';
+  let bg = '';
+  if (c.login_bg_jenis == 'gradasi') bg = `background:linear-gradient(135deg,${c1},${c2});`;
+  else if (c.login_bg_jenis == 'polos') bg = `background:${c1};`;
+  else if (c.login_bg_jenis == 'gambar') bg = `background:${c2}${img ? ' ' + _cssUrl(img) + ' center/cover no-repeat' : ''};`;
+  const rad = { tajam: '6px', sedang: '16px', bulat: '28px' }[c.login_sudut] || '16px';
+  const kaca = c.login_kartu == 'kaca', custom = kaca || c.login_kartu == 'putih';
+  const cardStyle = c.login_kartu == 'putih' ? 'background:#fff;color:#1e293b;box-shadow:0 20px 50px -12px rgba(0,0,0,.35);'
+    : kaca ? 'background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 50px -12px rgba(0,0,0,.35);' : '';
+  const ic = custom ? 'w-full border border-slate-300 rounded-lg px-3 py-2 bg-white text-slate-900 placeholder-slate-400' : inp;
+  const muted = custom ? 'opacity-75' : 'text-slate-500';
+  const err = kaca ? 'text-red-200 font-semibold' : 'text-red-600';
+  const lnk = kaca ? 'text-white underline' : 'text-blue-600 underline';
+  const id = n => pv ? '' : ` id="${n}"`, dis = pv ? ' disabled' : '';
+  const head = `<div class="text-center">${logo ? `<img src="${esc(logo)}" alt="" class="mx-auto h-16 w-16 object-contain mb-1" onerror="this.remove()">` : '<div class="text-4xl">🏥</div>'}<h1 class="text-xl font-bold mt-1">${esc(title)}</h1>${sub ? `<p class="${muted}">${esc(sub)}</p>` : ''}</div>`;
+  const note = c.login_catatan ? `<p class="text-xs text-center ${muted}" style="white-space:pre-line">${esc(c.login_catatan)}</p>` : '';
+  const button = `<button${id('lbtn')} type="${pv ? 'button' : 'submit'}" data-label="${esc(btnTxt)}" class="lg-btn w-full rounded-lg py-2.5 font-semibold text-white" style="background:${cb}"${dis}>${esc(btnTxt)}</button>`;
+  const body = GH_ON
+    ? `<label class="block"><span class="text-xs ${muted}">GitHub Personal Access Token</span><input${id('lt')} type="password" class="${ic}" placeholder="github_pat_..." autocomplete="off" spellcheck="false"${dis}></label>
+      ${off(c.login_tampil_info) ? '' : `<p class="text-xs ${muted}">Repositori: <b>${esc(GHCFG.owner)}/${esc(GHCFG.repo)}</b>. Hanya akun dengan akses <b>tulis</b> ke repositori ini yang dapat masuk. Token hanya disimpan di tab ini dan terhapus saat tab ditutup atau setelah 30 menit tanpa aktivitas.</p>`}
+      <p${id('le')} class="${err} text-xs hidden" role="alert"></p>${button}
+      ${off(c.login_tampil_info) ? '' : `<p class="text-xs text-center"><a class="${lnk}" target="_blank" rel="noopener noreferrer" href="https://github.com/settings/personal-access-tokens/new">Buat token (fine-grained)</a></p>`}`
+    : `<input${id('lu')} class="${ic}" placeholder="Username" value="admin"${dis}><input${id('lp')} type="password" class="${ic}" placeholder="Password"${dis}>
+      <p${id('le')} class="${err} text-xs hidden">Username atau password salah.</p>${button}
+      <p class="text-xs text-center ${custom ? '' : 'text-amber-600'}" style="${kaca ? 'color:#fde68a' : ''}">Mode demo lokal: login ini TIDAK aman dan hanya untuk uji coba. Untuk hosting GitHub Pages, panel ini otomatis memakai login Token.</p>
+      <p class="text-xs text-center ${muted}">Demo: admin / admin123</p>`;
+  const cardCls = `relative ${custom ? '' : card} p-8 w-full max-w-sm space-y-4`, cardSt = `position:relative;border-radius:${rad};${cardStyle}`;
+  // Pratinjau memakai <div> (form tidak boleh bersarang di dalam form editor CMS)
+  const form = pv ? `<div class="${cardCls}" style="${cardSt}">${head}${body}${note}</div>`
+    : `<form onsubmit="${GH_ON ? 'return doTokenLogin(event)' : 'return doLogin(event)'}" autocomplete="off" class="${cardCls}" style="${cardSt}">${head}${body}${note}</form>`;
+  return `<style>.lg-btn{transition:filter .15s}.lg-btn:hover{filter:brightness(.92)}.lg-btn:disabled{opacity:.6}</style>
+    <div class="${pv ? '' : 'h-full '}grid place-items-center p-4 relative" style="position:relative;${pv ? 'min-height:460px;' : ''}${bg}">${img && ov ? `<div style="position:absolute;inset:0;pointer-events:none;background:rgba(0,0,0,${ov})"></div>` : ''}${form}</div>`;
+}
+
+// Tampilan login yang dipakai: data terbit (dari data/site.json) bila ada, kecuali draft lokal lebih baru.
+// Identitas (nama/tagline/logo) memakai data terbit hanya di perangkat yang belum pernah menerbitkan/menyinkronkan.
+let LOGIN_PUB = null, LOGIN_LAST = '';
+function loginCfg() {
+  const c = Object.assign({}, LOGIN_DEF, db.cms), p = LOGIN_PUB;
+  if (p) {
+    if (!(String(c.login_updated || '') > String(p.login_updated || ''))) LOGIN_KEYS.forEach(k => { if (p[k] !== undefined) c[k] = p[k] });
+    if (!pubMeta().at) ['nama', 'tagline', 'logo'].forEach(k => { if (p[k] !== undefined) c[k] = p[k] });
+  }
+  return c;
+}
+async function loginLoadPublished() {
+  if (LOGIN_PUB !== null) return;
+  LOGIN_PUB = false;
+  let p = false;
+  try {
+    const r = await fetch(GHCFG.dataPath + '?v=' + Math.floor(Date.now() / 60000), { cache: 'no-store' });
+    if (r.ok) { const j = await r.json(); if (j && j.cms) p = j.cms }
+  } catch (e) { /* file:// atau belum ada data terbit */ }
+  LOGIN_PUB = p;
+  if (!p || authed()) return;
+  const el = $('#lt') || $('#lp');
+  if (!el || el.value || document.activeElement === el) return;      // jangan mengganggu bila pengguna sudah mulai mengetik
+  const html = loginHtml(loginCfg());
+  if (html !== LOGIN_LAST) { LOGIN_LAST = html; $('#app').innerHTML = html }
+}
 function login() {
-  const c = db.cms;
-  const head = `<div class="text-center"><div class="text-4xl">🏥</div><h1 class="text-xl font-bold mt-1">${esc(c.nama)}</h1><p class="text-slate-500">${GH_ON ? 'Panel Admin' : esc(c.tagline)}</p></div>`;
-  $('#app').innerHTML = GH_ON
-    ? `<div class="h-full grid place-items-center p-4"><form onsubmit="return doTokenLogin(event)" class="${card} p-8 w-full max-w-sm space-y-4" autocomplete="off">${head}
-      <label class="block"><span class="text-xs text-slate-500">GitHub Personal Access Token</span><input id="lt" type="password" class="${inp}" placeholder="github_pat_..." autocomplete="off" spellcheck="false"></label>
-      <p class="text-xs text-slate-500">Repositori: <b>${esc(GHCFG.owner)}/${esc(GHCFG.repo)}</b>. Hanya akun dengan akses <b>tulis</b> ke repositori ini yang dapat masuk. Token hanya disimpan di tab ini dan terhapus saat tab ditutup atau setelah 30 menit tanpa aktivitas.</p>
-      <p id="le" class="text-red-600 text-xs hidden" role="alert"></p>
-      <button id="lbtn" class="${btn()} w-full">Masuk dengan Token</button>
-      <p class="text-xs text-center"><a class="text-blue-600 underline" target="_blank" rel="noopener noreferrer" href="https://github.com/settings/personal-access-tokens/new">Buat token (fine-grained)</a></p></form></div>`
-    : `<div class="h-full grid place-items-center p-4"><form onsubmit="return doLogin(event)" class="${card} p-8 w-full max-w-sm space-y-4">${head}<input id="lu" class="${inp}" placeholder="Username" value="admin"><input id="lp" type="password" class="${inp}" placeholder="Password"><p id="le" class="text-red-600 text-xs hidden">Username atau password salah.</p><button class="${btn()} w-full">Masuk</button><p class="text-xs text-amber-600 text-center">Mode demo lokal: login ini TIDAK aman dan hanya untuk uji coba. Untuk hosting GitHub Pages, panel ini otomatis memakai login Token.</p><p class="text-xs text-slate-400 text-center">Demo: admin / admin123</p></form></div>`
+  LOGIN_LAST = loginHtml(loginCfg());
+  $('#app').innerHTML = LOGIN_LAST;
+  loginLoadPublished();
 }
 
 let _fails = 0, _lock = 0;
@@ -897,6 +978,7 @@ function dbImport() {
 const IMG_MAX_PX = 6000;      // resolusi maksimum file asli (lebar/tinggi)
 const IMG_SPECS = {
   hero:    { w: 1600, h: 900, fit: 'inside', type: 'jpeg', outKB: 450, maxFileMB: 5,   rec: '1920 × 800 px (lanskap)',            tip: 'Pilih foto dengan area kosong di sisi kiri agar teks terbaca.' },
+  loginbg: { w: 1920, h: 1080, fit: 'inside', type: 'jpeg', outKB: 400, maxFileMB: 5, rec: '1920 × 1080 px (lanskap 16:9)', tip: 'Pilih gambar yang lembut/gelap agar kartu login tetap terbaca.' },
   poli:    { w: 800,  h: 450, fit: 'cover',  type: 'jpeg', outKB: 110, maxFileMB: 3,   rec: '800 × 450 px (16:9)',                 tip: 'Foto ruang/area poliklinik. Tanpa foto, kartu memakai ikon.' },
   dokter:  { w: 400,  h: 400, fit: 'cover',  type: 'jpeg', outKB: 70,  maxFileMB: 2,   rec: '400 × 400 px (persegi 1:1)',          tip: 'Foto setengah badan, wajah di bagian atas, latar polos.', top: true },
   promo:   { w: 800,  h: 450, fit: 'cover',  type: 'jpeg', outKB: 110, maxFileMB: 3,   rec: '800 × 450 px (16:9)',                 tip: 'Teks penting jangan terlalu di pinggir karena tepi bisa terpotong.' },
@@ -983,6 +1065,7 @@ const CMS_TABS = [
   { id: 'navtop', label: 'Menu Atas', icon: 'fa-bars' },
   { id: 'navbawah', label: 'Menu Bawah', icon: 'fa-link' },
   { id: 'legal', label: 'Kebijakan & Syarat', icon: 'fa-file-contract' },
+  { id: 'login', label: 'Tampilan Login', icon: 'fa-right-to-bracket' },
   { id: 'hero', label: 'Hero Slider', icon: 'fa-images' },
   { id: 'poli', label: 'Poliklinik', icon: 'fa-house-medical' },
   { id: 'dokter', label: 'Foto Dokter', icon: 'fa-user-md' },
@@ -1171,6 +1254,42 @@ function cmsTab(id) {
       <div class="space-y-4">${doc('kebijakan', 'Kebijakan Privasi')}${doc('syarat', 'Syarat &amp; Ketentuan')}</div>`;
   }
 
+  if (id == 'login') {
+    const L = Object.assign({}, LOGIN_DEF, c), off = v => v === false || v === 'false';
+    const sel = (name, label, opts, val) => `<label class="block"><span class="text-xs text-slate-500 dark:text-slate-400">${label}</span><select name="c:${name}" class="${inp}">${opts.map(([v, t]) => `<option value="${v}" ${val == v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`;
+    const col = (name, label, val, def) => `<label class="block"><span class="text-xs text-slate-500 dark:text-slate-400">${label}</span><input type="color" name="c:${name}" value="${/^#[0-9a-f]{6}$/i.test(val || '') ? val : def}" class="block h-10 w-20 p-0.5 border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer bg-transparent"></label>`;
+    return H('Tampilan Form Login Panel Admin') + `<div class="grid lg:grid-cols-2 gap-6" oninput="cmsLoginPreview()" onchange="cmsLoginPreview()">
+      <div class="space-y-4">
+        <div class="${cmsBox} bg-slate-50 dark:bg-slate-900/40 text-xs text-slate-500">Atur tampilan halaman login panel admin. Pratinjau di sebelah kanan berubah langsung. Pengaturan ini ikut <b>diterbitkan</b> (menu Publikasi GitHub) agar tampil di perangkat mana pun; sebelum diterbitkan, hanya terlihat di browser ini. Pastikan teks tetap terbaca di atas warna/gambar latar. Peringatan <i>mode demo</i> tidak dapat disembunyikan.</div>
+        <div class="${cmsBox}"><h4 class="font-semibold text-sm">Teks</h4>
+          ${cmsField('c:login_judul', 'Judul', L.login_judul, { ph: c.nama || 'Nama rumah sakit', hint: 'Kosong = nama rumah sakit.' })}
+          ${cmsField('c:login_subjudul', 'Subjudul', L.login_subjudul, { ph: GH_ON ? 'Panel Admin' : (c.tagline || ''), hint: 'Kosong = bawaan.' })}
+          ${cmsField('c:login_teks_tombol', 'Teks tombol masuk', L.login_teks_tombol, { ph: GH_ON ? 'Masuk dengan Token' : 'Masuk' })}
+          ${cmsField('c:login_catatan', 'Catatan di bawah form (opsional)', L.login_catatan, { type: 'textarea', rows: 2, ph: 'mis. Akses khusus petugas rumah sakit' })}
+          ${cmsCheck('c:login_tampil_info', 'Tampilkan keterangan keamanan &amp; tautan pembuatan token (mode GitHub)', !off(L.login_tampil_info))}
+        </div>
+        <div class="${cmsBox}"><h4 class="font-semibold text-sm">Logo</h4>
+          ${cmsCheck('c:login_tampil_logo', 'Tampilkan logo di atas form', !off(L.login_tampil_logo))}
+          ${cmsImage('c:login_logo', L.login_logo, 'logo', { label: 'Logo khusus halaman login (kosong = pakai logo rumah sakit)', box: 'w-20 h-20', contain: true })}
+        </div>
+        <div class="${cmsBox}"><h4 class="font-semibold text-sm">Latar halaman</h4>
+          ${sel('login_bg_jenis', 'Jenis latar', [['bawaan', 'Bawaan (polos mengikuti tema)'], ['gradasi', 'Gradasi dua warna'], ['polos', 'Warna polos'], ['gambar', 'Gambar']], L.login_bg_jenis)}
+          <div class="flex flex-wrap gap-4">${col('login_bg_warna1', 'Warna 1 (utama)', L.login_bg_warna1, '#2563eb')}${col('login_bg_warna2', 'Warna 2 (gradasi / cadangan gambar)', L.login_bg_warna2, '#1e3a8a')}</div>
+          ${cmsImage('c:login_bg_gambar', L.login_bg_gambar, 'loginbg', { label: 'Gambar latar (dipakai bila jenis = Gambar)', box: 'w-32 h-[72px]' })}
+          <label class="block"><span class="text-xs text-slate-500 dark:text-slate-400">Pelapis gelap di atas gambar</span><div class="flex items-center gap-3"><input type="range" name="c:login_bg_overlay" min="0" max="80" step="5" value="${esc(L.login_bg_overlay)}" class="w-full" oninput="this.nextElementSibling.textContent=this.value+'%'"><output class="text-xs w-10 text-right">${esc(L.login_bg_overlay)}%</output></div></label>
+        </div>
+        <div class="${cmsBox}"><h4 class="font-semibold text-sm">Kartu &amp; tombol</h4>
+          ${sel('login_kartu', 'Gaya kartu form', [['bawaan', 'Bawaan (mengikuti tema terang/gelap)'], ['putih', 'Putih solid'], ['kaca', 'Kaca transparan (cocok untuk gambar/gradasi gelap)']], L.login_kartu)}
+          ${sel('login_sudut', 'Sudut kartu', [['tajam', 'Tajam'], ['sedang', 'Sedang'], ['bulat', 'Sangat bulat']], L.login_sudut)}
+          ${col('login_warna_tombol', 'Warna tombol masuk', L.login_warna_tombol, '#2563eb')}
+        </div>
+        <button type="button" class="text-xs text-red-600 underline" onclick="cmsLoginReset()">Kembalikan ke tampilan bawaan</button>
+      </div>
+      <div class="lg:sticky lg:top-4 self-start"><div class="text-xs text-slate-500 mb-2">Pratinjau langsung</div>
+        <div id="login-prev" aria-hidden="true" class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 pointer-events-none select-none">${loginHtml(L, { preview: true })}</div></div>
+    </div>`;
+  }
+
   if (id == 'poli') {
     const L = list('poli'), q = CMS_POLI_Q.trim().toLowerCase(), row = 'border border-slate-200 dark:border-slate-700 rounded-lg p-3';
     return H('Poliklinik di Website') + `<div class="${cmsBox} mb-4 bg-slate-50 dark:bg-slate-900/40 text-xs text-slate-500">Atur tampilan tiap poliklinik di bagian <b>Poliklinik</b> website (di bawah Layanan): foto atau ikon, deskripsi singkat, dan tampil/sembunyi. Nama, kode, lokasi, dan status diubah di menu <a class="text-blue-600 underline" href="#/poli">Poliklinik</a>; poli berstatus <b>Nonaktif</b> tidak tampil. Poli yang disembunyikan juga tidak muncul di formulir pendaftaran.<br><b>Foto poli</b> - ${imgSpecText('poli')}</div>
@@ -1280,13 +1399,14 @@ function saveCmsFormData() {
   const E = form.elements, c = db.cms;
   Array.from(E).forEach(el => {
     if (!el.name || !el.name.startsWith('c:')) return;
-    const k = el.name.slice(2);
+    const k = el.name.slice(2), before = c[k];
     if (el.type == 'checkbox') c[k] = el.checked;
     else if (el.type == 'number') {
       let n = Math.max(0, +el.value || 0);
       if (k == 'hero_interval') n = Math.min(20, Math.max(2, n || 5));
       c[k] = n
     } else c[k] = el.value;
+    if (k.startsWith('login_') && k != 'login_updated' && String(before) !== String(c[k])) c.login_updated = new Date().toISOString();
   });
   for (const [col, spec] of Object.entries(CMS_ITEMS)) {
     (db[col] || []).forEach(it => {
@@ -1390,6 +1510,25 @@ function cmsImgClear(name) {
   if (name == 'c:favicon') applyFavicon();
   cmsRenderTab();
   toast('Gambar dihapus');
+}
+function cmsLoginValues() {
+  const f = $('#cmsForm');
+  if (!f) return {};
+  const E = f.elements, o = {};
+  LOGIN_KEYS.forEach(k => { const el = E['c:' + k]; if (el) o[k] = el.type == 'checkbox' ? el.checked : el.value });
+  return o;
+}
+function cmsLoginPreview() {
+  const box = $('#login-prev');
+  if (box) box.innerHTML = loginHtml({ ...db.cms, ...cmsLoginValues() }, { preview: true });
+}
+function cmsLoginReset() {
+  ask('Kembalikan tampilan form login ke bawaan? Pengaturan teks, warna, dan gambar login akan hilang.', () => {
+    LOGIN_KEYS.forEach(k => { db.cms[k] = LOGIN_DEF[k] });
+    db.cms.login_updated = new Date().toISOString();
+    cmsRenderTab();
+    toast('Tampilan login dikembalikan ke bawaan. Klik Simpan Perubahan untuk menerapkan.');
+  });
 }
 function cmsFilterPoli(q) {
   CMS_POLI_Q = q;
@@ -1680,7 +1819,7 @@ async function doTokenLogin(e) {
   } catch (err) {
     if (++_fails >= 5) { _lock = Date.now() + 30000; _fails = 0 }
     show(err.message || 'Login gagal.');
-    bt.disabled = false; bt.textContent = 'Masuk dengan Token';
+    bt.disabled = false; bt.textContent = bt.dataset.label || 'Masuk dengan Token';
   }
   return false
 }
@@ -1748,13 +1887,13 @@ async function pubPrepared() {
     const path = `${GHCFG.imgDir}/${h}.${m[1] == 'jpeg' ? 'jpg' : m[1]}`;
     files[path] = m[2]; obj[key] = path;
   };
-  await conv(json.cms, 'logo'); await conv(json.cms, 'favicon');
+  await conv(json.cms, 'logo'); await conv(json.cms, 'favicon'); await conv(json.cms, 'login_logo'); await conv(json.cms, 'login_bg_gambar');
   for (const [col, key] of [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto'], ['poli', 'foto']]) for (const it of json[col]) await conv(it, key);
   return { json, files };
 }
 const pubUsedPaths = json => {
   const used = new Set(), pre = GHCFG.imgDir + '/', add = v => { if (typeof v == 'string' && v.startsWith(pre)) used.add(v) };
-  add(json.cms.logo); add(json.cms.favicon);
+  add(json.cms.logo); add(json.cms.favicon); add(json.cms.login_logo); add(json.cms.login_bg_gambar);
   [['cms_hero', 'gambar'], ['cms_promo', 'gambar'], ['cms_berita', 'gambar'], ['dokter', 'foto'], ['poli', 'foto']].forEach(([c, k]) => json[c].forEach(it => add(it[k])));
   return used;
 };
@@ -1928,7 +2067,7 @@ function publishPage() {
 
 // ===== MAKE FUNCTIONS GLOBALLY ACCESSIBLE =====
 Object.assign(window, { cmsAdmin, switchCmsTab, saveCmsFormData, saveCmsAdmin, cmsClose, addCmsItem, deleteCmsItem, moveCmsItem,
-  cmsImgUpload, cmsImgClear, cmsFilterDokter, cmsFilterPoli, cmsLegalPreview, cmsLegalReset, doTokenLogin, pubRun, pubPull, pubDownload, publishPage, inbox, inboxTerima, inboxTolak, inboxHapus, inboxBaca });
+  cmsImgUpload, cmsImgClear, cmsFilterDokter, cmsFilterPoli, cmsLoginPreview, cmsLoginReset, cmsLegalPreview, cmsLegalReset, doTokenLogin, pubRun, pubPull, pubDownload, publishPage, inbox, inboxTerima, inboxTolak, inboxHapus, inboxBaca });
 
 // ===== EVENT LISTENERS =====
 addEventListener('hashchange', () => authed() && shell());
